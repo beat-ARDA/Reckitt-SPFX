@@ -14,11 +14,9 @@ export interface IPromoFormState {
     loadingTypes: boolean;
     filteredProducts: ClientProduct[];
     actionsComments?: string;
-
     evidenceDescription?:string;
     evidenceDate?:Date;
     hasEvidenceValidatioNError?: boolean;
-
     mainModalOpen: boolean;
     hideDeleteProductDialog: boolean;
     hideSavingSpinnerConfirmationDialog: boolean;    
@@ -30,7 +28,8 @@ export interface IPromoFormState {
     actionConfirmationDialogType?: ActionConfirmationType;
     enableActionValidation: boolean;
     promotionTitle: string;
-    CopiarPromo: boolean;
+    copiarPromo: boolean;
     currentUser: String;
-    PromoProven: boolean;
+    promoProven: boolean;
+    flowApproval: boolean;
 }

@@ -27,8 +27,9 @@ export interface IPromoFormState {
     actionConfirmationDialogType?: ActionConfirmationType;
     enableActionValidation: boolean;
     promotionTitle: string;
-    CopiarPromo: boolean;
+    copiarPromo: boolean;
     currentUser: String;
-    PromoProven: boolean;
+    promoProven: boolean;
+    flowApproval: boolean;
 }
 //# sourceMappingURL=IPromoFormState.d.ts.map

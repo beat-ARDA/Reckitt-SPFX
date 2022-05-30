@@ -19,6 +19,7 @@ export declare class Promo extends Entity {
     Evidence: PromoEvidence[];
     protected _state: PromoState;
     Approvals: string;
+    TipoFlujo: string;
     constructor(configuration: Configuration);
     ChangeState(status: PromoStatus): void;
     InitializeState(): Promise<void>;

@@ -26,6 +26,7 @@ export class Promo extends Entity {
     public Evidence: PromoEvidence[] = [];
     protected _state: PromoState;
     public Approvals: string = "";
+    public TipoFlujo: string;
 
     constructor(configuration: Configuration) {
         super();

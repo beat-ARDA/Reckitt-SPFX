@@ -17,7 +17,7 @@ export class ApprovalState extends PromoState {
             await NotificacionsManager.SendTaskAssignedNotification(this.Entity, user.Email, null, user.Value);
         }));
     }
-    
+
     public GetStatusId(): number {
         return PromoStatus.Approval;
     }
@@ -28,12 +28,13 @@ export class ApprovalState extends PromoState {
 
     public async GetViewModel(): Promise<PromoViewModel> {
         let viewModel = new PromoViewModel(this.Entity);
-
         viewModel.ReadOnlyForm = true;
-
         const currentUser = await SecurityHelper.GetCurrentUser();
-
-        if(this.GetCurrentStage().UserCanApprove(currentUser.ItemId)){
+        console.log(viewModel);
+        
+        if (
+            this.GetCurrentStage().UserCanApprove(currentUser.ItemId) &&
+            viewModel.Entity.TipoFlujo != "") {
             viewModel.ShowApproveButton = true;
             viewModel.ShowRejectButton = true;
         }
@@ -41,16 +42,15 @@ export class ApprovalState extends PromoState {
         return viewModel;
     }
 
-    public async Approve(comments: string): Promise<void>
-    {
+    public async Approve(comments: string): Promise<void> {
         const stage = this.GetCurrentStage();
         const user = await SecurityHelper.GetCurrentUser();
         const kam = await SecurityHelper.GetUserById(this.Entity.Client.KeyAccountManager.ItemId);
-        
+
         stage.AddToCompletBy(user.ItemId);
 
-        if(stage.IsComplete()) {
-            if(this.Entity.CurrentStageNumber == this.Entity.WorkflowStages.length) {
+        if (stage.IsComplete()) {
+            if (this.Entity.CurrentStageNumber == this.Entity.WorkflowStages.length) {
                 this.Entity.ChangeState(PromoStatus.Approved);
 
                 const to = kam.Email;
@@ -69,7 +69,7 @@ export class ApprovalState extends PromoState {
 
         let readerIDs = [this.Entity.Client.KeyAccountManager.ItemId];
 
-        for(let i = 0; i < this.Entity.CurrentStageNumber; i++) 
+        for (let i = 0; i < this.Entity.CurrentStageNumber; i++)
             readerIDs = readerIDs.concat(this.Entity.WorkflowStages[i].CompletedBy);
 
         await SecurityHelper.SetPromoPermissions(this.Entity.ItemId, readerIDs, this.GetCurrentStage().GetPendingUserIDs());
@@ -79,12 +79,11 @@ export class ApprovalState extends PromoState {
         return NotificacionsManager.SendTaskApprovedNotification(this.Entity, user.Value, kam.Email);
     }
 
-    public async Reject(comments: string): Promise<void>
-    {
+    public async Reject(comments: string): Promise<void> {
         const stage = this.GetCurrentStage();
         const user = await SecurityHelper.GetCurrentUser();
 
-        this.Entity.ChangeState(PromoStatus.Rejected);        
+        this.Entity.ChangeState(PromoStatus.Rejected);
 
         stage.AddToCompletBy(user.ItemId);
 
@@ -93,13 +92,13 @@ export class ApprovalState extends PromoState {
 
         let readerIDs = [this.Entity.Client.KeyAccountManager.ItemId];
 
-        for(let i = 0; i < this.Entity.CurrentStageNumber; i++) 
+        for (let i = 0; i < this.Entity.CurrentStageNumber; i++)
             readerIDs = readerIDs.concat(this.Entity.WorkflowStages[i].CompletedBy);
 
         readerIDs = readerIDs.concat(stage.GetPendingUserIDs());
 
         await SecurityHelper.SetPromoPermissions(this.Entity.ItemId, readerIDs);
-        
+
         const to = (await SecurityHelper.GetUserById(this.Entity.Client.KeyAccountManager.ItemId)).Email;
 
         return NotificacionsManager.SendTaskRejectedNotification(this.Entity, comments, user.Value, to);

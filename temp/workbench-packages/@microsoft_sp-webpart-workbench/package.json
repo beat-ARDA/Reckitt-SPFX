@@ -2,7 +2,7 @@
   "_args": [
     [
       "@microsoft/sp-webpart-workbench@1.11.0",
-      "C:\\Projects\\RB\\Promociones"
+      "C:\\Users\\e-arduron\\desktop\\neoris\\SharepointWebparts\\Reckitt-SPFX"
     ]
   ],
   "_development": true,
@@ -43,7 +43,7 @@
   ],
   "_resolved": "https://registry.npmjs.org/@microsoft/sp-webpart-workbench/-/sp-webpart-workbench-1.11.0.tgz",
   "_spec": "1.11.0",
-  "_where": "C:\\Projects\\RB\\Promociones",
+  "_where": "C:\\Users\\e-arduron\\desktop\\neoris\\SharepointWebparts\\Reckitt-SPFX",
   "dependencies": {
     "@microsoft/gulp-core-build-serve": "3.5.5",
     "@microsoft/node-core-library": "3.15.1",

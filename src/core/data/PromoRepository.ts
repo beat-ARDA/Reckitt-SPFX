@@ -14,8 +14,6 @@ import { WorkflowLogRepository } from "./WorkflowLogRepository";
 export class PromoRepository {
     public static LIST_NAME: string = "Promociones";
 
-    //TODO: Revisar el manejo de excepciones y mensajes de error
-    //TODO: Optimizar consulta
     public static async GetById(id: number): Promise<Promo> {
       const item = await sp.web.lists.getByTitle(PromoRepository.LIST_NAME)
         .items.getById(id).select(
@@ -28,7 +26,8 @@ export class PromoRepository {
           "SYS_WorkflowStages",
           "SYS_CurrentStageNumber",
           "Approvals",
-        ).get();  
+          "TipoFlujo/Title"
+        ).expand("TipoFlujo").get();  
         
       const items = await PromoItemRepository.GetByPromo(item.ID, item.ClientId);      
       const client = item.ClientId ? await ClientRepository.GetById(item.ClientId) : null;
@@ -37,7 +36,6 @@ export class PromoRepository {
 
       return PromoRepository.BuildEntity(item, items, client, workflowLog, evidence);
     }
-
     public static async SaveOrUpdate(entity: Promo, sU: number = 0): Promise<void> {
       const pendingApprovers = entity.GetPendingApproverIDs();
       let aprobadores: any;
@@ -99,13 +97,11 @@ export class PromoRepository {
 
       await PromoItemRepository.SaveOrUpdateItems(entity.ItemId, entity.PromoID, entity.Items);
     }
-
     public static async GetNewPromo() : Promise<Promo>
     {
       let configuration = await ConfigurationRepository.GetInstance();
       return new Promo(configuration);
     }
-
     private static async BuildEntity(item: any, items: PromoItem[], client: Client, workflowLog: WorkflowLog[], evidence: PromoEvidence[]): Promise<Promo> {
 
       let entity = await PromoRepository.GetNewPromo();
@@ -118,6 +114,7 @@ export class PromoRepository {
       entity.CurrentStageNumber = item.SYS_CurrentStageNumber; 
       entity.WorkflowLog = workflowLog;
       entity.Evidence = evidence;
+      entity.TipoFlujo = item.TipoFlujo.Title == undefined ? "" : item.TipoFlujo.Title;
 
       items.map((promoItem) => {
         promoItem.GetBaseGMSum = entity.GetBaseGMSum.bind(entity);
