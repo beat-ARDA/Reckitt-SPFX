@@ -1,0 +1,1 @@
+{"version":3,"file":"ApproverItem.d.ts","sourceRoot":"","sources":["../../../../../src/core/model/Common/Approvers/ApproverItem.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,WAAW,EAAE,MAAM,yBAAyB,CAAC;AAE9D,qBAAa,YAAa,SAAQ,MAAM;IAC7B,IAAI,EAAE,MAAM,CAAC;IACb,IAAI,EAAE,WAAW,CAAC;gBAEN,IAAI,CAAC,EAAC,OAAO,CAAC,YAAY,CAAC;CAIjD"}

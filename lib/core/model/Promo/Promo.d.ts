@@ -1,0 +1,44 @@
+import { Entity } from "../../infrastructure";
+import { CategoryType, Client, WorkflowLog } from "../Common";
+import { PromoState } from "./PromoStates";
+import { PromoStatus, PromoViewModel } from "./";
+import { PromoItem } from "./PromoItem";
+import { PromoWorkflowState } from "./PromoWorkflowState";
+import { Configuration } from "../../infrastructure/Configuration";
+import { PromoEvidence } from "./PromoEvidence";
+export declare class Promo extends Entity {
+    PromoID: string;
+    Name: string;
+    ActivityObjective: string;
+    Client: Client;
+    Items: PromoItem[];
+    CurrentStageNumber: number;
+    WorkflowStages: PromoWorkflowState[];
+    WorkflowLog: WorkflowLog[];
+    Config: Configuration;
+    Evidence: PromoEvidence[];
+    protected _state: PromoState;
+    Approvals: string;
+    constructor(configuration: Configuration);
+    ChangeState(status: PromoStatus): void;
+    InitializeState(): Promise<void>;
+    GetStatusText(): string;
+    GetStatusId(): number;
+    GetPendingApproverIDs(): number[];
+    GetViewModel(): Promise<PromoViewModel>;
+    Save(entity: Promo): Promise<void>;
+    Submit(entity: Promo): Promise<void>;
+    Approve(comments: string): Promise<void>;
+    Reject(comments: string): Promise<void>;
+    Proven(comments: string): Promise<void>;
+    GetBaseGMSum(category: CategoryType): number;
+    GetTotalEstimatedInvestment(): number;
+    GetTotalEstimatedInvestmentAsString(): string;
+    GetROI(): number;
+    GetROIAsString(): string;
+    IsEffective(): boolean;
+    GetFromDate(): Date;
+    GetToDate(): Date;
+    EvidenceHasChanges(): boolean;
+}
+//# sourceMappingURL=Promo.d.ts.map
