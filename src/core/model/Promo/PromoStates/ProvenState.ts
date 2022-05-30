@@ -1,10 +1,10 @@
 import { PromoStatus } from "..";
 import { Constants } from "../../..";
-import { 
-    CategoryRepository, 
-    ClientRepository,  
-    ProductRepository, 
-    TypeRepository 
+import {
+    CategoryRepository,
+    ClientRepository,
+    ProductRepository,
+    TypeRepository
 } from "../../../data";
 import { PromoViewModel } from "../PromoViewModel";
 import { PromoState } from "./PromoState";

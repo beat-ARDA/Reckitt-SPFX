@@ -3,6 +3,7 @@ import { Constants } from "../../..";
 import { NotificacionsManager } from "../../../common/NotificacionsManager";
 import { SecurityHelper } from "../../../common/SecurityHelper";
 import { PromoRepository } from "../../../data";
+import { FlowApproversRepository } from "../../../data/FlowApproversRepository";
 import { WorkflowLogRepository } from "../../../data/WorkflowLogRepository";
 import { PromoViewModel } from "../PromoViewModel";
 import { PromoState } from "./PromoState";
@@ -30,8 +31,8 @@ export class ApprovalState extends PromoState {
         let viewModel = new PromoViewModel(this.Entity);
         viewModel.ReadOnlyForm = true;
         const currentUser = await SecurityHelper.GetCurrentUser();
-        console.log(viewModel);
-        
+        viewModel.FlowsTypes = await FlowApproversRepository.GetFlowTypes();
+        console.log("Entre")
         if (
             this.GetCurrentStage().UserCanApprove(currentUser.ItemId) &&
             viewModel.Entity.TipoFlujo != "") {

@@ -4,7 +4,7 @@ import { Promo } from "./Promo";
 export class PromoViewModel {
     public Entity: Promo;
 
-    constructor(entity: Promo){
+    constructor(entity: Promo) {
         this.Entity = entity;
         this.ReadOnlyForm = false;
     }
@@ -16,13 +16,13 @@ export class PromoViewModel {
     public Clients: Client[];
     public Categories: Category[];
     public Types: Type[];
-    //public Products: Product[];
-    public ClientProducts : ClientProduct[];
+    public ClientProducts: ClientProduct[];
+    public FlowsTypes: Array<{ key: number, text: string }>
 
     //#endregion
 
     public GetPromotionTitle(): string {
-        if(this.Entity != null && this.Entity.Name && this.Entity.Client != null)
+        if (this.Entity != null && this.Entity.Name && this.Entity.Client != null)
             return this.Entity.Client.Name + " - " + this.Entity.Name;
 
         return "Nueva promoción";

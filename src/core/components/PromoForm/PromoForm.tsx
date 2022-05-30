@@ -121,7 +121,7 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
         enableSubmit: true,
         viewModel: viewModel
       });
-
+      console.log(viewModel.FlowsTypes);
       this.setState((state, props) => ({
         copiarPromo: viewModel.Entity.Client && this.state.currentUser
           ? (viewModel.Entity.Client.KeyAccountManager.Value == this.state.currentUser ? true : false) : false,
@@ -162,8 +162,6 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
       </DialogContent>;
 
     if (!this.state.isLoading && !this.state.formSubmitted) {
-      //#region Collections
-      const tipoFlujo: Array<{ key: number, text: string }> = [{ key: 1, text: "F1" }, { key: 2, text: "F2" }]
 
       const clients: Array<{ key: number, text: string }> =
         this.state.viewModel.Clients != null ?
@@ -1188,7 +1186,7 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
                         }}
                         placeholder="Selecciona un flujo"
                         //label="Tipo flujo:"
-                        options={tipoFlujo}
+                        options={this.state.viewModel.FlowsTypes == undefined ? [] : this.state.viewModel.FlowsTypes}
                       //required={true}
                       //errorMessage={this.getValidationErrorMessage(entity.Client)}
                       />

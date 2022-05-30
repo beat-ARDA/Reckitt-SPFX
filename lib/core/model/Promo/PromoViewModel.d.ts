@@ -8,6 +8,10 @@ export declare class PromoViewModel {
     Categories: Category[];
     Types: Type[];
     ClientProducts: ClientProduct[];
+    FlowsTypes: Array<{
+        key: number;
+        text: string;
+    }>;
     GetPromotionTitle(): string;
     ShowSaveButton: boolean;
     ShowSubmitButton: boolean;

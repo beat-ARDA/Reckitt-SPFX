@@ -9,6 +9,7 @@ import {
     TypeRepository 
 } from "../../../data";
 import { ClientProductRepository } from "../../../data/ClientProductRepository";
+import { FlowApproversRepository } from "../../../data/FlowApproversRepository";
 import { PromoViewModel } from "../PromoViewModel";
 import { PromoState } from "./PromoState";
 
@@ -32,7 +33,7 @@ export class DraftPromoState extends PromoState {
 
         viewModel.Clients = await ClientRepository.GetClients();
         viewModel.Categories = await CategoryRepository.GetAll();
-        viewModel.ClientProducts = await ClientProductRepository.GetAll();
+        viewModel.ClientProducts = await ClientProductRepository.GetAll();   
         
         if(this.Entity.Items.length > 0 && this.Entity.Items[0].Category)
             viewModel.Types = await TypeRepository.GetByCategory(this.Entity.Items[0].Category.ItemId);

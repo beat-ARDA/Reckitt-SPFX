@@ -29,7 +29,6 @@ export class NewPromoState extends PromoState {
         viewModel.Clients = await ClientRepository.GetClients();
         viewModel.Categories = await CategoryRepository.GetAll();
         viewModel.ClientProducts = await ClientProductRepository.GetAll();
-        //viewModel.Products = await ProductRepository.GetAll();
         
         viewModel.ShowSaveButton = true;
         viewModel.ShowSubmitButton = true;
