@@ -121,14 +121,17 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
         enableSubmit: true,
         viewModel: viewModel
       });
-      console.log(viewModel.FlowsTypes);
+      console.log(this.state.currentUser);
+      console.log(approvers.Phase0Coordinator1);
+      console.log(approvers.Phase0Coordinator1.Value);
       this.setState((state, props) => ({
         copiarPromo: viewModel.Entity.Client && this.state.currentUser
           ? (viewModel.Entity.Client.KeyAccountManager.Value == this.state.currentUser ? true : false) : false,
         promoProven: this.state.viewModel.Entity.GetStatusId() == PromoStatus.Approved
           ? (approvers.Phase0Coordinator1.Value == this.state.currentUser || approvers.Phase0Coordinator2.Value == this.state.currentUser
             || approvers.Phase0Coordinator3.Value == this.state.currentUser ? true : false) : false,
-        flowApproval: viewModel.Entity.TipoFlujo == "" ? true : false
+        flowApproval: viewModel.Entity.TipoFlujo == "" &&  approvers.Phase0Coordinator1.Value == this.state.currentUser || approvers.Phase0Coordinator2.Value == this.state.currentUser
+        || approvers.Phase0Coordinator3.Value == this.state.currentUser ? true : false
       }));
 
     }).catch((err) => {

@@ -32,7 +32,7 @@ export class ApprovalState extends PromoState {
         viewModel.ReadOnlyForm = true;
         const currentUser = await SecurityHelper.GetCurrentUser();
         viewModel.FlowsTypes = await FlowApproversRepository.GetFlowTypes();
-        console.log("Entre")
+
         if (
             this.GetCurrentStage().UserCanApprove(currentUser.ItemId) &&
             viewModel.Entity.TipoFlujo != "") {
