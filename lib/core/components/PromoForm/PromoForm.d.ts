@@ -25,6 +25,7 @@ export declare class PromoForm extends React.Component<IPromoFormProps, IPromoFo
     private GetFilteredProductCategories;
     private onBusinessUnitChanged;
     private onBrandChanged;
+    private onFlowChange;
     private onProductCategoryChanged;
     private onProductChanged;
     private onSelectStartDate;
@@ -45,6 +46,7 @@ export declare class PromoForm extends React.Component<IPromoFormProps, IPromoFo
     private submit;
     private approve;
     private reject;
+    private flowAsign;
     private onActionCommentsChange;
     private confirmAction;
     private getValidationErrorMessage;

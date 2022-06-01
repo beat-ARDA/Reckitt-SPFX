@@ -1,3 +1,4 @@
+import { concat } from "lodash";
 import { PromoStatus } from "..";
 import { Constants } from "../../..";
 import { NotificacionsManager } from "../../../common/NotificacionsManager";
@@ -103,5 +104,42 @@ export class ApprovalState extends PromoState {
         const to = (await SecurityHelper.GetUserById(this.Entity.Client.KeyAccountManager.ItemId)).Email;
 
         return NotificacionsManager.SendTaskRejectedNotification(this.Entity, comments, user.Value, to);
+    }
+
+    public async FlowAsign(comments: string, flowType: string): Promise<void> {
+        const stage = this.GetCurrentStage();
+        const user = await SecurityHelper.GetCurrentUser();
+        const kam = await SecurityHelper.GetUserById(this.Entity.Client.KeyAccountManager.ItemId);
+
+        stage.AddToCompletBy(user.ItemId);
+
+        if (stage.IsComplete()) {
+            if (this.Entity.CurrentStageNumber == this.Entity.WorkflowStages.length) {
+                const to = kam.Email;
+
+                NotificacionsManager.SendWorkflowApprovedNotification(this.Entity, to);
+            }
+            else {
+                this.Entity.CurrentStageNumber++;
+                const users = await this.GetCurrentStage().GetPendingUsers();
+
+                await Promise.all(users.map(async (usr) => {
+                    await NotificacionsManager.SendTaskAssignedNotification(this.Entity, usr.Email, null, usr.Value);
+                }));
+            }
+        }
+
+        let readerIDs = [this.Entity.Client.KeyAccountManager.ItemId];
+
+        for (let i = 0; i < this.Entity.CurrentStageNumber; i++)
+            readerIDs = readerIDs.concat(this.Entity.WorkflowStages[i].CompletedBy);
+
+        this.Entity.TipoFlujo = flowType;
+        let mensaje = "Asignado" + "-" + flowType;
+        await SecurityHelper.SetPromoPermissions(this.Entity.ItemId, readerIDs, this.GetCurrentStage().GetPendingUserIDs());
+        await PromoRepository.SaveOrUpdate(this.Entity, 1);
+        await WorkflowLogRepository.Save(this.Entity.ItemId, this.Entity.PromoID, mensaje, comments, this.Entity);
+
+        return NotificacionsManager.SendTaskApprovedNotification(this.Entity, user.Value, kam.Email);
     }
 }

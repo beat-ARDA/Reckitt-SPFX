@@ -12,5 +12,6 @@ export declare class PromoService {
     static GetTypesByCategory(categoryId: number): Promise<Type[]>;
     static UpdateEvidence(promoID: string, evidence: PromoEvidence[]): Promise<void>;
     static Proven(entity: Promo, comments: string): Promise<void>;
+    static FlowAsign(entity: Promo, comments: string, flowType: string): Promise<void>;
 }
 //# sourceMappingURL=PromoService.d.ts.map

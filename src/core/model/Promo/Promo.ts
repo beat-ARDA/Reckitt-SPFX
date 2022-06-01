@@ -31,14 +31,14 @@ export class Promo extends Entity {
     constructor(configuration: Configuration) {
         super();
 
-        this.Config = configuration;        
+        this.Config = configuration;
         this.PromoID = this.Config.CountryCode + "--";
-        this.Items = [new PromoItem({AdditionalID: this.PromoID + ".1", GetBaseGMSum: this.GetBaseGMSum.bind(this)})];
+        this.Items = [new PromoItem({ AdditionalID: this.PromoID + ".1", GetBaseGMSum: this.GetBaseGMSum.bind(this) })];
 
         this.ChangeState(PromoStatus.New);
     }
 
-    public ChangeState(status: PromoStatus):void {        
+    public ChangeState(status: PromoStatus): void {
         switch (status) {
             case PromoStatus.New:
                 this._state = new NewPromoState();
@@ -69,53 +69,52 @@ export class Promo extends Entity {
         return this._state.Initialize();
     }
 
-    public GetStatusText():string {
+    public GetStatusText(): string {
         return this._state.GetStatusText();
     }
 
-    public GetStatusId():number {
+    public GetStatusId(): number {
         return this._state.GetStatusId();
     }
 
     public GetPendingApproverIDs(): number[] {
-        return this.GetStatusId() == PromoStatus.Approval ? this._state.GetCurrentStage().GetPendingUserIDs(): null;
+        return this.GetStatusId() == PromoStatus.Approval ? this._state.GetCurrentStage().GetPendingUserIDs() : null;
     }
 
     public GetViewModel(): Promise<PromoViewModel> {
         return this._state.GetViewModel();
     }
 
-    public Save(entity: Promo): Promise<void>
-    {       
+    public Save(entity: Promo): Promise<void> {
         return this._state.Save(entity);
     }
 
-    public Submit(entity: Promo): Promise<void>
-    {       
+    public Submit(entity: Promo): Promise<void> {
         return this._state.Submit(entity);
     }
 
-    public Approve(comments: string): Promise<void>
-    {       
+    public Approve(comments: string): Promise<void> {
         return this._state.Approve(comments);
     }
 
-    public Reject(comments: string): Promise<void>
-    {       
+    public Reject(comments: string): Promise<void> {
         return this._state.Reject(comments);
     }
 
-    public Proven(comments: string): Promise<void>
-    {       
+    public Proven(comments: string): Promise<void> {
         return this._state.Proven(comments);
+    }
+
+    public FlowAsign(comments: string, flowType: string): Promise<void> {
+        return this._state.FlowAsign(comments, flowType);
     }
 
     public GetBaseGMSum(category: CategoryType) {
         let value: number = 0;
 
-        if(this.Items) {
+        if (this.Items) {
             this.Items.map((item) => {
-                if(item.GetCategoryType() == category)
+                if (item.GetCategoryType() == category)
                     value += item.GetBaseGM();
             });
         }
@@ -126,8 +125,8 @@ export class Promo extends Entity {
     public GetTotalEstimatedInvestment(): number {
         let value: number = 0;
 
-        if(this.Items) {
-            this.Items.map((item:PromoItem) => {
+        if (this.Items) {
+            this.Items.map((item: PromoItem) => {
                 value += item.GetEstimatedInvestment() || 0;
             });
         }
@@ -148,8 +147,8 @@ export class Promo extends Entity {
         //let additionalInvestment: number = 0;
         const estimatedInvestment = this.GetTotalEstimatedInvestment();
 
-        if(this.Items) {
-            this.Items.map((item:PromoItem) => {
+        if (this.Items) {
+            this.Items.map((item: PromoItem) => {
                 incrementalGM += item.GetIncrementalGM() || 0;
                 //additionalInvestment += item.AdditionalInvestment || 0;
             });
@@ -169,18 +168,16 @@ export class Promo extends Entity {
 
     public IsEffective(): boolean {
         const roi = this.GetROI();
-        return (roi != null && roi >=1);
+        return (roi != null && roi >= 1);
     }
 
-    public GetFromDate(): Date
-    {
+    public GetFromDate(): Date {
         return this.Items.reduce((prev, current) => {
             return (prev.StartDate < current.StartDate) ? prev : current;
         }).StartDate;
     }
 
-    public GetToDate(): Date
-    {
+    public GetToDate(): Date {
         return this.Items.reduce((prev, current) => {
             return (prev.EndDate > current.EndDate) ? prev : current;
         }).EndDate;
@@ -190,7 +187,7 @@ export class Promo extends Entity {
         let hasChanges = false;
 
         this.Evidence.forEach((evidence) => {
-            if(evidence.File != null || evidence.Deleted){
+            if (evidence.File != null || evidence.Deleted) {
                 hasChanges = true;
                 return;
             }

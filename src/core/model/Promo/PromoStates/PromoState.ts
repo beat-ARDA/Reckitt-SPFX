@@ -4,40 +4,40 @@ import { Promo } from "../Promo";
 import { PromoViewModel } from "../PromoViewModel";
 import { PromoWorkflowState } from "../PromoWorkflowState";
 
-export abstract class PromoState {    
-    public Entity:Promo;
+export abstract class PromoState {
+    public Entity: Promo;
 
-    public abstract GetStatusId():number;
-    public abstract GetStatusText():string;
-    public abstract GetViewModel():Promise<PromoViewModel>;
+    public abstract GetStatusId(): number;
+    public abstract GetStatusText(): string;
+    public abstract GetViewModel(): Promise<PromoViewModel>;
 
     public async Initialize(): Promise<void> {
         return;
     }
 
-    public async Save(entity: Promo): Promise<void>
-    {
-        throw new Error(Constants.Messages.NotAllowedAction);
-    }    
-
-    public Submit(entity: Promo): Promise<void>
-    {
+    public async Save(entity: Promo): Promise<void> {
         throw new Error(Constants.Messages.NotAllowedAction);
     }
 
-    public async Approve(comments: string): Promise<void>
-    {
+    public Submit(entity: Promo): Promise<void> {
         throw new Error(Constants.Messages.NotAllowedAction);
     }
 
-    public Reject(comments: string): Promise<void>
-    {
+    public async Approve(comments: string): Promise<void> {
+        throw new Error(Constants.Messages.NotAllowedAction);
+    }
+
+    public Reject(comments: string): Promise<void> {
         return;
         //throw new Error(Constants.Messages.NotAllowedAction);
     }
 
-    public async Proven(comments: string): Promise<void>
-    {
+    public async Proven(comments: string): Promise<void> {
+        return;
+        //throw new Error(Constants.Messages.NotAllowedAction);
+    }
+
+    public async FlowAsign(comments: string, flowType: string): Promise<void> {
         return;
         //throw new Error(Constants.Messages.NotAllowedAction);
     }
@@ -47,19 +47,19 @@ export abstract class PromoState {
         const kamUserId = entity.Client.Channel.HeadOfChannel.ItemId;
         const approverUserId = approvers.Phase1Approver1.ItemId;
 
-        if(kamUserId != approverUserId)
+        if (kamUserId != approverUserId)
             entity.WorkflowStages = [new PromoWorkflowState([kamUserId, approverUserId])];
         else
             entity.WorkflowStages = [new PromoWorkflowState([kamUserId])];
 
-        if(entity.GetTotalEstimatedInvestment() > entity.Config.ApprovalAmountLimit) {
+        if (entity.GetTotalEstimatedInvestment() > entity.Config.ApprovalAmountLimit) {
             const approver1 = approvers.Phase2Approver1.ItemId;
             const approver2 = approvers.Phase3Approver1.ItemId;
 
-            if(approver1 !=  approver2)
+            if (approver1 != approver2)
                 entity.WorkflowStages.push(new PromoWorkflowState([approver1, approver2]));
             else
-            entity.WorkflowStages.push(new PromoWorkflowState([approver1]));
+                entity.WorkflowStages.push(new PromoWorkflowState([approver1]));
         }
 
         entity.CurrentStageNumber = 1;

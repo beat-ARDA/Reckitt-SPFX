@@ -92,7 +92,8 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
       copiarPromo: false,
       currentUser: "",
       promoProven: false,
-      flowApproval: false
+      flowApproval: false,
+      flowSelected: ""
     };
   }
 
@@ -132,7 +133,7 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
             || approvers.Phase0Coordinator3.Value == this.state.currentUser ? true : false) : false,
         flowApproval: viewModel.Entity.TipoFlujo == "" && this.state.viewModel.Entity.GetStatusId() == PromoStatus.Approval ? (approvers.Phase0Coordinator1.Value == this.state.currentUser || approvers.Phase0Coordinator2.Value == this.state.currentUser
           || approvers.Phase0Coordinator3.Value == this.state.currentUser ? true : false) : false,
-        }));
+      }));
 
     }).catch((err) => {
       console.error(err);
@@ -601,7 +602,6 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
                                       placeholder="Seleccione una marca"
                                       label="Marca:"
                                       options={brands}
-                                      //disabled={entity.Client == null}
                                       selectedKey={selectedItem.Brand ? selectedItem.Brand.ItemId : null}
                                       onChanged={this.onBrandChanged.bind(this)}
                                       required={true}
@@ -1188,9 +1188,9 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
                           display: this.state.flowApproval ? "block" : "none",
                         }}
                         placeholder="Selecciona un flujo"
-                        //label="Tipo flujo:"
                         options={this.state.viewModel.FlowsTypes == undefined ? [] : this.state.viewModel.FlowsTypes}
-                      //required={true}
+                        required={true}
+                        onChange={this.onFlowChange.bind(this)}
                       //errorMessage={this.getValidationErrorMessage(entity.Client)}
                       />
                       <Dialog
@@ -1278,7 +1278,7 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
                         }}
                         text="Asignar flujo"
                         allowDisabledFocus
-                        onClick={null}
+                        onClick={this.flowAsign.bind(this)}
                       />
                       <PrimaryButton
                         style={{
@@ -1560,22 +1560,6 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
     return filteresClients;
   }
 
-  /*private GetFilteredProducts(): Product[] {
-    const selectedItem = this.state.viewModel.Entity.Items[this.state.selectedIndex];
-    let filteredProducts = this.state.viewModel.Products || [];
-
-    if (selectedItem.BusinessUnit)
-      filteredProducts = filteredProducts.filter(x => x.BusinessUnit.ItemId === selectedItem.BusinessUnit.ItemId);
-
-    if (selectedItem.Brand)
-      filteredProducts = filteredProducts.filter(x => x.Brand.ItemId === selectedItem.Brand.ItemId);
-
-    if (selectedItem.ProductCategory)
-      filteredProducts = filteredProducts.filter(x => x.Category.ItemId === selectedItem.Category.ItemId);
-
-    return filteredProducts;
-  }*/
-
   private GetFilteredProducts(): ClientProduct[] {
     const selectedItem = this.state.viewModel.Entity.Items[this.state.selectedIndex];
     let filteredProducts = this.state.viewModel.ClientProducts || [];
@@ -1675,6 +1659,10 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
       }) : null;
       return state;
     });
+  }
+
+  private onFlowChange(item: IDropdownOption) {
+    console.log(item.text);
   }
 
   private onProductCategoryChanged(item: IDropdownOption) {
@@ -1953,9 +1941,7 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
   }
 
   private submit(): void {
-
     if (!this.validateFormControls()) return;
-
     this.setState({
       enableSubmit: false,
       hideSavingSpinnerConfirmationDialog: false
@@ -1988,6 +1974,14 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
     });
   }
 
+  private flowAsign(): void {
+    this.setState({
+      actionConfirmationDialogTitle: "Asignar flujo",
+      actionConfirmationDialogType: ActionConfirmationType.FlowAsign,
+      hideActionConfirmationDialog: false
+    });
+  }
+
   private onActionCommentsChange(_event: any, text: any) {
     this.setState({ actionsComments: text });
   }
@@ -2010,8 +2004,7 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
         this.setState({ formSubmitted: true, errorMessage: err });
       });
     }
-
-    else {
+    else if (this.state.actionConfirmationDialogType == ActionConfirmationType.Reject) {
       this.setState({ enableActionValidation: true });
 
       if (!CommonHelper.IsNullOrEmpty(this.state.actionsComments)) {
@@ -2033,6 +2026,23 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
       }
       else
         return;
+    }
+    else if (this.state.actionConfirmationDialogType == ActionConfirmationType.FlowAsign) {
+      this.setState({
+        enableSubmit: false,
+        hideActionConfirmationDialog: true,
+        hideSavingSpinnerConfirmationDialog: false
+      });
+
+      PromoService.FlowAsign(this.state.viewModel.Entity, this.state.actionsComments, "").then(() => {
+        this.setState({
+          formSubmitted: true,
+          resultIsOK: true
+        });
+      }).catch((err) => {
+        console.error(err);
+        this.setState({ formSubmitted: true, errorMessage: err });
+      });
     }
   }
 

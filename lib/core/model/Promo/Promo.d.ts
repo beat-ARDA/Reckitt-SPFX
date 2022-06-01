@@ -32,6 +32,7 @@ export declare class Promo extends Entity {
     Approve(comments: string): Promise<void>;
     Reject(comments: string): Promise<void>;
     Proven(comments: string): Promise<void>;
+    FlowAsign(comments: string, flowType: string): Promise<void>;
     GetBaseGMSum(category: CategoryType): number;
     GetTotalEstimatedInvestment(): number;
     GetTotalEstimatedInvestmentAsString(): string;

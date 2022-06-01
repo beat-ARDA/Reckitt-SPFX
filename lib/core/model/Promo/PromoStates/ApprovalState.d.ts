@@ -7,5 +7,6 @@ export declare class ApprovalState extends PromoState {
     GetViewModel(): Promise<PromoViewModel>;
     Approve(comments: string): Promise<void>;
     Reject(comments: string): Promise<void>;
+    FlowAsign(comments: string, flowType: string): Promise<void>;
 }
 //# sourceMappingURL=ApprovalState.d.ts.map

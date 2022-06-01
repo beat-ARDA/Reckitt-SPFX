@@ -32,4 +32,5 @@ export interface IPromoFormState {
     currentUser: String;
     promoProven: boolean;
     flowApproval: boolean;
+    flowSelected: string;
 }
