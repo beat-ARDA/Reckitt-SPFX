@@ -130,9 +130,9 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
         promoProven: this.state.viewModel.Entity.GetStatusId() == PromoStatus.Approved
           ? (approvers.Phase0Coordinator1.Value == this.state.currentUser || approvers.Phase0Coordinator2.Value == this.state.currentUser
             || approvers.Phase0Coordinator3.Value == this.state.currentUser ? true : false) : false,
-        flowApproval: viewModel.Entity.TipoFlujo == "" &&  approvers.Phase0Coordinator1.Value == this.state.currentUser || approvers.Phase0Coordinator2.Value == this.state.currentUser
-        || approvers.Phase0Coordinator3.Value == this.state.currentUser ? true : false
-      }));
+        flowApproval: viewModel.Entity.TipoFlujo == "" && this.state.viewModel.Entity.GetStatusId() == PromoStatus.Approval ? (approvers.Phase0Coordinator1.Value == this.state.currentUser || approvers.Phase0Coordinator2.Value == this.state.currentUser
+          || approvers.Phase0Coordinator3.Value == this.state.currentUser ? true : false) : false,
+        }));
 
     }).catch((err) => {
       console.error(err);
