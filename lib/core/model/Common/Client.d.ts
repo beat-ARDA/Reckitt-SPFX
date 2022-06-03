@@ -5,6 +5,7 @@ export declare class Client extends Entity {
     Channel: Channel;
     Subchannel: LookupValue;
     KeyAccountManager: LookupValue;
+    teamLeader: LookupValue;
     constructor(init?: Partial<Client>);
 }
 //# sourceMappingURL=Client.d.ts.map

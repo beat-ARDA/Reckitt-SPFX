@@ -9,4 +9,5 @@ export * from './LastYearVolumes';
 export * from './NotificationTemplate';
 export * from './NotificationTemplateId';
 export * from './WorkflowLog';
+export * from './FlowType';
 //# sourceMappingURL=index.d.ts.map

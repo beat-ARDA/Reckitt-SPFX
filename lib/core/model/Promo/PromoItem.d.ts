@@ -23,6 +23,7 @@ export declare class PromoItem extends Entity {
     EstimatedIncrementalVolume: number;
     AdditionalInvestment: number;
     Client: LookupValue;
+    FlowType: LookupValue;
     LastYearVolumes: LastYearVolumes;
     GetBaseGMSum?: (category: CategoryType) => number;
     constructor(init?: Partial<PromoItem>);

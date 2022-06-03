@@ -13,6 +13,7 @@ export class ClientRepository {
                     "ID", 
                     "Title", 
                     "ChannelId", 
+
                     "Subchannel/ID",
                     "Subchannel/Title",
                     "KeyAccountManager/ID",

@@ -1,4 +1,4 @@
-import { Category, Client, ClientProduct, Type } from "../Common";
+import { Category, Client, ClientProduct, Type, FlowType } from "../Common";
 import { Promo } from "./Promo";
 export declare class PromoViewModel {
     Entity: Promo;
@@ -8,10 +8,7 @@ export declare class PromoViewModel {
     Categories: Category[];
     Types: Type[];
     ClientProducts: ClientProduct[];
-    FlowsTypes: Array<{
-        key: number;
-        text: string;
-    }>;
+    FlowsTypes: FlowType[];
     GetPromotionTitle(): string;
     ShowSaveButton: boolean;
     ShowSubmitButton: boolean;

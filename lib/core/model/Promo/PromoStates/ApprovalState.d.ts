@@ -1,4 +1,4 @@
-import { LookupValue } from "../../../infrastructure";
+import { FlowType } from "../../Common";
 import { PromoViewModel } from "../PromoViewModel";
 import { PromoState } from "./PromoState";
 export declare class ApprovalState extends PromoState {
@@ -8,6 +8,6 @@ export declare class ApprovalState extends PromoState {
     GetViewModel(): Promise<PromoViewModel>;
     Approve(comments: string): Promise<void>;
     Reject(comments: string): Promise<void>;
-    FlowAsign(comments: string, flowType: LookupValue): Promise<void>;
+    FlowAsign(comments: string, flowType: FlowType): Promise<void>;
 }
 //# sourceMappingURL=ApprovalState.d.ts.map

@@ -32,11 +32,11 @@ import {
   IIconProps
 } from 'office-ui-fabric-react';
 import styles from './PromoForm.module.scss';
-import { Category, Client, ClientProduct, Product, Type } from '../../model/Common';
+import { Category, Client, ClientProduct, Type, FlowType } from '../../model/Common';
 import { ClientRepository } from '../../data';
 import { PromoItem, PromoStatus } from '../../model/Promo';
 import { Constants } from '../../Constants';
-import { ActionConfirmationType, Entity, LookupValue } from '../../infrastructure';
+import { ActionConfirmationType, LookupValue } from '../../infrastructure';
 import { ProductSelector } from '../ProductSelector/ProductSelector';
 import { CommonHelper } from '../../common/CommonHelper';
 import { ClientProductRepository } from '../../data/ClientProductRepository';
@@ -49,17 +49,8 @@ import { LastYearVolumes } from '../../model/Common/LastYearVolumes';
 import { RBDatePicker } from '../RBDatePicker/RBDatePicker';
 import { PromoEvidence } from '../../model/Promo/PromoEvidence';
 import { SecurityHelper } from '../../common/SecurityHelper';
-import { containsInvalidFileFolderChars } from '@pnp/sp';
-import { ClientsidePageFromFile } from '@pnp/sp/clientside-pages';
-import { Item } from '@pnp/sp/items';
-import * as strings from 'PromoListViewLinkFieldCustomizerStrings';
 import { _Item } from '@pnp/sp/items/types';
-import { WorkflowLogRepository } from '../../data/WorkflowLogRepository';
-import { PromoRepository } from '../../data';
-import { PromoState } from '../../model/Promo/PromoStates/PromoState';
 import { ApproversRepository } from '../../data/ApproversRepository';
-import { Approvers } from '../../model/Common/Approvers/Approvers';
-import { ApproverKeys } from '../../model/Common/Approvers/ApproverKeys';
 
 
 
@@ -93,7 +84,6 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
       currentUser: "",
       promoProven: false,
       flowApproval: false,
-      flowSelected: null
     };
   }
 
@@ -129,7 +119,7 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
         promoProven: this.state.viewModel.Entity.GetStatusId() == PromoStatus.Approved
           ? (approvers.Phase0Coordinator1.Value == this.state.currentUser || approvers.Phase0Coordinator2.Value == this.state.currentUser
             || approvers.Phase0Coordinator3.Value == this.state.currentUser ? true : false) : false,
-        flowApproval: this.state.viewModel.Entity.GetStatusId() == PromoStatus.Approval ? (approvers.Phase0Coordinator1.Value == this.state.currentUser || approvers.Phase0Coordinator2.Value == this.state.currentUser
+        flowApproval: this.state.viewModel.Entity.TipoFlujo == null && this.state.viewModel.Entity.GetStatusId() == PromoStatus.Approval ? (approvers.Phase0Coordinator1.Value == this.state.currentUser || approvers.Phase0Coordinator2.Value == this.state.currentUser
           || approvers.Phase0Coordinator3.Value == this.state.currentUser ? true : false) : false
       }));
 
@@ -201,12 +191,12 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
             return { key: item.ItemId, text: item.Value };
           }) : [];
 
-          const flowType: Array<{ key: number, text: string }> =
-          this.state.viewModel.FlowsTypes != null ?
-            (this.state.viewModel.FlowsTypes as Array<FlowType>).map((item): { key: number, text: string } => {
-              return { key: item.ItemId, text: item.Name };
-            }) : [];
-              
+      const flowType: Array<{ key: number, text: string }> =
+        this.state.viewModel.FlowsTypes != null ?
+          (this.state.viewModel.FlowsTypes as Array<FlowType>).map((item): { key: number, text: string } => {
+            return { key: item.ItemId, text: item.Name };
+          }) : [];
+
       //#endregion
 
       output =
@@ -1561,7 +1551,6 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
 
     filteresClients.sort((a, b) => a.Value > b.Value ? 1 : -1);
 
-
     return filteresClients;
   }
 
@@ -1583,8 +1572,6 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
 
     return filteredProducts;
   }
-
-
 
   private GetFilteredBrands(): LookupValue[] {
     const filteredBrands: LookupValue[] = [];
@@ -1667,7 +1654,18 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
   }
 
   private onFlowChange(item: IDropdownOption) {
-    this.setState({ flowSelected: new LookupValue({ ItemId: item.key as number, Value: item.text }) });
+    const flowtype = item.key as number;
+    this.setState((state) => {
+      state.viewModel.Entity.TipoFlujo = new FlowType({ ItemId: flowtype, Name: item.text });
+      return state;
+    });
+    this.setState((state) => {
+      state.viewModel.Entity.Items[this.state.selectedIndex].FlowType = item.key ? new LookupValue({
+        ItemId: item.key as number,
+        Value: item.text
+      }) : null;
+      return state;
+    });
   }
 
   private onProductCategoryChanged(item: IDropdownOption) {
@@ -1683,10 +1681,8 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
 
   private onProductChanged(productId: number) {
     const product = this.state.viewModel.ClientProducts.filter(x => x.ItemId === productId)[0];
-    //console.log(product, product.SKUNumber);
     this.setState((state) => {
       state.viewModel.Entity.Items[this.state.selectedIndex].ClientProduct = product;
-      //state.viewModel.Entity.Items[this.state.selectedIndex].Client = product.Client;
       state.viewModel.Entity.Items[this.state.selectedIndex].BusinessUnit = product.BusinessUnit;
       state.viewModel.Entity.Items[this.state.selectedIndex].Brand = product.Brand;
       state.viewModel.Entity.Items[this.state.selectedIndex].ProductCategory = product.Category;
@@ -2033,23 +2029,25 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
         return;
     }
     else if (this.state.actionConfirmationDialogType == ActionConfirmationType.FlowAsign) {
-      console.log("HHHHH");
-      console.log(this.state.flowSelected);
+
       this.setState({
         enableSubmit: false,
         hideActionConfirmationDialog: true,
         hideSavingSpinnerConfirmationDialog: false
       });
 
-      PromoService.FlowAsign(this.state.viewModel.Entity, this.state.actionsComments, this.state.flowSelected).then(() => {
-        this.setState({
-          formSubmitted: true,
-          resultIsOK: true
+      PromoService.FlowAsign(
+        this.state.viewModel.Entity,
+        this.state.actionsComments,
+        this.state.viewModel.Entity.TipoFlujo).then(() => {
+          this.setState({
+            formSubmitted: true,
+            resultIsOK: true
+          });
+        }).catch((err) => {
+          console.error(err);
+          this.setState({ formSubmitted: true, errorMessage: err });
         });
-      }).catch((err) => {
-        console.error(err);
-        this.setState({ formSubmitted: true, errorMessage: err });
-      });
     }
   }
 

@@ -2,7 +2,7 @@ import { Promo } from "../model/Promo/Promo";
 import { PromoViewModel } from "../model/Promo/PromoViewModel";
 import { PromoRepository } from "../data/PromoRepository";
 import { TypeRepository } from "../data/TypeRepository";
-import { Type } from "../model/Common";
+import { Type, FlowType } from "../model/Common";
 import { ConfigurationRepository } from "../data";
 import { PromoEvidence } from "../model/Promo/PromoEvidence";
 import { EvidenceRepository } from "../data/EvidenceRepository";

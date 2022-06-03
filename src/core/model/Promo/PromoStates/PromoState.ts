@@ -4,6 +4,7 @@ import { LookupValue } from "../../../infrastructure";
 import { Promo } from "../Promo";
 import { PromoViewModel } from "../PromoViewModel";
 import { PromoWorkflowState } from "../PromoWorkflowState";
+import { FlowType } from "../../Common";
 
 export abstract class PromoState {
     public Entity: Promo;

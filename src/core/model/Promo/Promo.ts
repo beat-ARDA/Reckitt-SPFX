@@ -1,5 +1,5 @@
-import { Entity, LookupValue } from "../../infrastructure";
-import { CategoryType, Client, ClientProduct, FlowType. WorkflowLog } from "../Common";
+import { Entity } from "../../infrastructure";
+import { CategoryType, Client, FlowType, WorkflowLog } from "../Common";
 import { NewPromoState, PromoState, DraftPromoState } from "./PromoStates";
 import { PromoStatus, PromoViewModel } from "./";
 import { PromoItem } from "./PromoItem";
@@ -10,7 +10,6 @@ import { RejectedState } from "./PromoStates/RejectedState";
 import { Configuration } from "../../infrastructure/Configuration";
 import { PromoEvidence } from "./PromoEvidence";
 import { ProvenState } from "./PromoStates/ProvenState";
-import * as strings from "PromoListViewLinkFieldCustomizerStrings";
 
 export class Promo extends Entity {
 
@@ -28,7 +27,7 @@ export class Promo extends Entity {
     public Approvals: string = "";
     //public TipoFlujo: LookupValue;
     public TipoFlujo: FlowType;
-    
+
     constructor(configuration: Configuration) {
         super();
 

@@ -1,4 +1,4 @@
-import { Category, Client, ClientProduct, Product, Type } from "../Common";
+import { Category, Client, ClientProduct, Type, FlowType } from "../Common";
 import { Promo } from "./Promo";
 
 export class PromoViewModel {
@@ -19,7 +19,7 @@ export class PromoViewModel {
     public ClientProducts: ClientProduct[];
     //public FlowsTypes: Array<{ key: number, text: string }>
     public FlowsTypes: FlowType[];
-    
+
     //#endregion
 
     public GetPromotionTitle(): string {

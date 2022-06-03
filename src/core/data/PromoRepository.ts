@@ -1,8 +1,7 @@
 import { IItemAddResult, sp } from "@pnp/sp/presets/all";
 import { concat } from "lodash";
 import { ClientRepository, ConfigurationRepository } from ".";
-import { Client, WorkflowLog } from "../model/Common";
-import { Approvers } from "../model/Common/Approvers/Approvers";
+import { Client, WorkflowLog, FlowType } from "../model/Common";
 import { PromoItem, PromoWorkflowState } from "../model/Promo";
 import { Promo } from "../model/Promo/Promo";
 import { PromoEvidence } from "../model/Promo/PromoEvidence";
@@ -28,15 +27,14 @@ export class PromoRepository {
         "SYS_CurrentStageNumber",
         "Approvals",
         "TipoFlujoId"
-        //"TipoFlujo/Title"
-        ).get();  
+      ).get();
 
     const items = await PromoItemRepository.GetByPromo(item.ID, item.ClientId);
     const client = item.ClientId ? await ClientRepository.GetById(item.ClientId) : null;
     const workflowLog = await WorkflowLogRepository.GetByPromo(item.ID);
     const evidence = await EvidenceRepository.GetByPromoID(item.Title);
     const flowtype = item.TipoFlujoId ? await FlowApproversRepository.GetById(item.TipoFlujoId) : null;
-    
+
     return PromoRepository.BuildEntity(item, items, client, workflowLog, evidence, flowtype);
   }
   public static async SaveOrUpdate(entity: Promo, sU: number = 0): Promise<void> {
@@ -67,6 +65,7 @@ export class PromoRepository {
           aprobadores = concat(aprobadores + " " + approver1Id + "-" + approver1 + ": Pendiente| ").toString();
       }
     }
+
     const data = {
       PromoName: entity.Name,
       ActivityObjective: entity.ActivityObjective,
@@ -81,8 +80,7 @@ export class PromoRepository {
       PendingApproversId: { results: pendingApprovers ? entity.GetPendingApproverIDs() : [] },
       TotalEstimatedInvestment: entity.GetTotalEstimatedInvestment(),
       Approvals: aprobadores,
-      //TipoFlujo: entity.TipoFlujo
-      TipoFlujoId: entity.TipoFlujo ? entity.TipoFlujo.ItemId : null,
+      TipoFlujoId: entity.TipoFlujo ? entity.TipoFlujo.ItemId : null
     };
 
     if (!entity.ItemId) {
@@ -120,7 +118,7 @@ export class PromoRepository {
     entity.Evidence = evidence;
     //entity.TipoFlujo = item.TipoFlujo.Title == undefined ? null : item.TipoFlujo.Title;
     entity.TipoFlujo = flowtype;
-    
+
     items.map((promoItem) => {
       promoItem.GetBaseGMSum = entity.GetBaseGMSum.bind(entity);
     });

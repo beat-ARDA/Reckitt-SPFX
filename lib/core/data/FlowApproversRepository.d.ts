@@ -1,8 +1,8 @@
+import { FlowType } from "../model/Common";
 export declare class FlowApproversRepository {
-    static LIST_NAME: string;
-    static GetFlowTypes(): Promise<Array<{
-        key: number;
-        text: string;
-    }>>;
+    private static LIST_NAME;
+    static GetById(id: number): Promise<FlowType>;
+    static GetAll(): Promise<FlowType[]>;
+    private static BuildEntity;
 }
 //# sourceMappingURL=FlowApproversRepository.d.ts.map
