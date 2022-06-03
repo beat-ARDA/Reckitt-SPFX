@@ -26,6 +26,7 @@ export class PromoItem extends Entity {
     public EstimatedIncrementalVolume: number;
     public AdditionalInvestment: number;
     public Client: LookupValue;
+    public FlowType : LookupValue;
 
     public LastYearVolumes: LastYearVolumes;
     public GetBaseGMSum?: (category: CategoryType) => number;

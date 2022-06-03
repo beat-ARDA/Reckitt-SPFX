@@ -38,7 +38,7 @@ export abstract class PromoState {
         //throw new Error(Constants.Messages.NotAllowedAction);
     }
 
-    public async FlowAsign(comments: string, flowType: LookupValue): Promise<void> {
+    public async FlowAsign(comments: string, flowType: FlowType): Promise<void> {
         return;
         //throw new Error(Constants.Messages.NotAllowedAction);
     }

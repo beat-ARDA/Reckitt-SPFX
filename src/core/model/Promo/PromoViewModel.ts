@@ -17,8 +17,9 @@ export class PromoViewModel {
     public Categories: Category[];
     public Types: Type[];
     public ClientProducts: ClientProduct[];
-    public FlowsTypes: Array<{ key: number, text: string }>
-
+    //public FlowsTypes: Array<{ key: number, text: string }>
+    public FlowsTypes: FlowType[];
+    
     //#endregion
 
     public GetPromotionTitle(): string {

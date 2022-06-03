@@ -47,7 +47,7 @@ export class PromoService {
     return await (await this.GetPromo(entity.ItemId)).Proven(comments);
   }
 
-  public static async FlowAsign(entity: Promo, comments: string, flowType: LookupValue): Promise<void> {
-    return await (await this.GetPromo(entity.ItemId)).FlowAsign(comments, flowType);
+  public static async FlowAsign(entity: Promo, comments: string, flowtype: FlowType): Promise<void> {
+    return await (await this.GetPromo(entity.ItemId)).FlowAsign(comments, flowtype);
   }
 }

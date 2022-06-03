@@ -201,6 +201,12 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
             return { key: item.ItemId, text: item.Value };
           }) : [];
 
+          const flowType: Array<{ key: number, text: string }> =
+          this.state.viewModel.FlowsTypes != null ?
+            (this.state.viewModel.FlowsTypes as Array<FlowType>).map((item): { key: number, text: string } => {
+              return { key: item.ItemId, text: item.Name };
+            }) : [];
+              
       //#endregion
 
       output =
@@ -1186,7 +1192,8 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
                           display: this.state.flowApproval ? "block" : "none",
                         }}
                         placeholder="Selecciona un flujo"
-                        options={this.state.viewModel.FlowsTypes == undefined ? [] : this.state.viewModel.FlowsTypes}
+                        options={flowType}
+                        selectedKey={entity.TipoFlujo ? entity.TipoFlujo.ItemId : null}
                         required={true}
                         onChanged={this.onFlowChange.bind(this)}
                       //errorMessage={this.getValidationErrorMessage(entity.Client)}

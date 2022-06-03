@@ -7,6 +7,7 @@ import { PromoItem, PromoWorkflowState } from "../model/Promo";
 import { Promo } from "../model/Promo/Promo";
 import { PromoEvidence } from "../model/Promo/PromoEvidence";
 import { ApproversRepository } from "./ApproversRepository";
+import { FlowApproversRepository } from "./FlowApproversRepository";
 import { EvidenceRepository } from "./EvidenceRepository";
 import { PromoItemRepository } from "./PromoItemRepository";
 import { WorkflowLogRepository } from "./WorkflowLogRepository";
@@ -26,15 +27,17 @@ export class PromoRepository {
         "SYS_WorkflowStages",
         "SYS_CurrentStageNumber",
         "Approvals",
-        "TipoFlujo/Title"
-      ).expand("TipoFlujo").get();
+        "TipoFlujoId"
+        //"TipoFlujo/Title"
+        ).get();  
 
     const items = await PromoItemRepository.GetByPromo(item.ID, item.ClientId);
     const client = item.ClientId ? await ClientRepository.GetById(item.ClientId) : null;
     const workflowLog = await WorkflowLogRepository.GetByPromo(item.ID);
     const evidence = await EvidenceRepository.GetByPromoID(item.Title);
-
-    return PromoRepository.BuildEntity(item, items, client, workflowLog, evidence);
+    const flowtype = item.TipoFlujoId ? await FlowApproversRepository.GetById(item.TipoFlujoId) : null;
+    
+    return PromoRepository.BuildEntity(item, items, client, workflowLog, evidence, flowtype);
   }
   public static async SaveOrUpdate(entity: Promo, sU: number = 0): Promise<void> {
     const pendingApprovers = entity.GetPendingApproverIDs();
@@ -78,7 +81,8 @@ export class PromoRepository {
       PendingApproversId: { results: pendingApprovers ? entity.GetPendingApproverIDs() : [] },
       TotalEstimatedInvestment: entity.GetTotalEstimatedInvestment(),
       Approvals: aprobadores,
-      TipoFlujo: entity.TipoFlujo
+      //TipoFlujo: entity.TipoFlujo
+      TipoFlujoId: entity.TipoFlujo ? entity.TipoFlujo.ItemId : null,
     };
 
     if (!entity.ItemId) {
@@ -102,7 +106,7 @@ export class PromoRepository {
     let configuration = await ConfigurationRepository.GetInstance();
     return new Promo(configuration);
   }
-  private static async BuildEntity(item: any, items: PromoItem[], client: Client, workflowLog: WorkflowLog[], evidence: PromoEvidence[]): Promise<Promo> {
+  private static async BuildEntity(item: any, items: PromoItem[], client: Client, workflowLog: WorkflowLog[], evidence: PromoEvidence[], flowtype: FlowType): Promise<Promo> {
 
     let entity = await PromoRepository.GetNewPromo();
 
@@ -114,8 +118,9 @@ export class PromoRepository {
     entity.CurrentStageNumber = item.SYS_CurrentStageNumber;
     entity.WorkflowLog = workflowLog;
     entity.Evidence = evidence;
-    entity.TipoFlujo = item.TipoFlujo.Title == undefined ? null : item.TipoFlujo.Title;
-
+    //entity.TipoFlujo = item.TipoFlujo.Title == undefined ? null : item.TipoFlujo.Title;
+    entity.TipoFlujo = flowtype;
+    
     items.map((promoItem) => {
       promoItem.GetBaseGMSum = entity.GetBaseGMSum.bind(entity);
     });
