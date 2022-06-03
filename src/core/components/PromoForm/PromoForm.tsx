@@ -2040,6 +2040,7 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
         this.state.viewModel.Entity,
         this.state.actionsComments,
         this.state.viewModel.Entity.TipoFlujo).then(() => {
+
           this.setState({
             formSubmitted: true,
             resultIsOK: true

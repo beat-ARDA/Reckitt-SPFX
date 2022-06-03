@@ -105,8 +105,8 @@ export class Promo extends Entity {
         return this._state.Proven(comments);
     }
 
-    public FlowAsign(comments: string, flowType: FlowType): Promise<void> {
-        return this._state.FlowAsign(comments, flowType);
+    public FlowAsign(entity: Promo, comments: string, flowType: FlowType): Promise<void> {
+        return this._state.FlowAsign(entity ,comments, flowType);
     }
 
     public GetBaseGMSum(category: CategoryType) {

@@ -13,7 +13,7 @@ export declare abstract class PromoState {
     Approve(comments: string): Promise<void>;
     Reject(comments: string): Promise<void>;
     Proven(comments: string): Promise<void>;
-    FlowAsign(comments: string, flowType: FlowType): Promise<void>;
+    FlowAsign(entity: Promo, comments: string, flowType: FlowType): Promise<void>;
     InitializeWorkflowState(entity: Promo): Promise<void>;
     GetCurrentStage(): PromoWorkflowState;
 }

@@ -48,6 +48,6 @@ export class PromoService {
   }
 
   public static async FlowAsign(entity: Promo, comments: string, flowtype: FlowType): Promise<void> {
-    return await (await this.GetPromo(entity.ItemId)).FlowAsign(comments, flowtype);
+    return await (await this.GetPromo(entity.ItemId)).FlowAsign(entity ,comments, flowtype);
   }
 }

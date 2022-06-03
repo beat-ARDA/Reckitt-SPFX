@@ -9,6 +9,7 @@ import { WorkflowLogRepository } from "../../../data/WorkflowLogRepository";
 import { FlowType } from "../../Common";
 import { PromoViewModel } from "../PromoViewModel";
 import { PromoState } from "./PromoState";
+import { Promo } from "../Promo";
 
 export class ApprovalState extends PromoState {
     public async Initialize(): Promise<void> {
@@ -35,6 +36,7 @@ export class ApprovalState extends PromoState {
         const currentUser = await SecurityHelper.GetCurrentUser();
         viewModel.FlowsTypes = await FlowApproversRepository.GetAll();
 
+        console.log(this.GetCurrentStage().UserCanApprove(currentUser.ItemId));
         if (
             this.GetCurrentStage().UserCanApprove(currentUser.ItemId) &&
             viewModel.Entity.TipoFlujo != null) {
@@ -107,10 +109,12 @@ export class ApprovalState extends PromoState {
         return NotificacionsManager.SendTaskRejectedNotification(this.Entity, comments, user.Value, to);
     }
 
-    public async FlowAsign(comments: string, flowType: FlowType): Promise<void> {
+    public async FlowAsign(entity: Promo, comments: string, flowType: FlowType): Promise<void> {
         const stage = this.GetCurrentStage();
         const user = await SecurityHelper.GetCurrentUser();
         const kam = await SecurityHelper.GetUserById(this.Entity.Client.KeyAccountManager.ItemId);
+
+        await this.InitializeWorkflowState(entity);
 
         stage.AddToCompletBy(user.ItemId);
 
