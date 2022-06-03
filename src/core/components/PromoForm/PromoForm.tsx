@@ -93,7 +93,7 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
       currentUser: "",
       promoProven: false,
       flowApproval: false,
-      flowSelected: ""
+      flowSelected: null
     };
   }
 
@@ -122,17 +122,15 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
         enableSubmit: true,
         viewModel: viewModel
       });
-      console.log(this.state.currentUser);
-      console.log(approvers.Phase0Coordinator1);
-      console.log(approvers.Phase0Coordinator1.Value);
+
       this.setState((state, props) => ({
         copiarPromo: viewModel.Entity.Client && this.state.currentUser
           ? (viewModel.Entity.Client.KeyAccountManager.Value == this.state.currentUser ? true : false) : false,
         promoProven: this.state.viewModel.Entity.GetStatusId() == PromoStatus.Approved
           ? (approvers.Phase0Coordinator1.Value == this.state.currentUser || approvers.Phase0Coordinator2.Value == this.state.currentUser
             || approvers.Phase0Coordinator3.Value == this.state.currentUser ? true : false) : false,
-        flowApproval: viewModel.Entity.TipoFlujo == "" && this.state.viewModel.Entity.GetStatusId() == PromoStatus.Approval ? (approvers.Phase0Coordinator1.Value == this.state.currentUser || approvers.Phase0Coordinator2.Value == this.state.currentUser
-          || approvers.Phase0Coordinator3.Value == this.state.currentUser ? true : false) : false,
+        flowApproval: this.state.viewModel.Entity.GetStatusId() == PromoStatus.Approval ? (approvers.Phase0Coordinator1.Value == this.state.currentUser || approvers.Phase0Coordinator2.Value == this.state.currentUser
+          || approvers.Phase0Coordinator3.Value == this.state.currentUser ? true : false) : false
       }));
 
     }).catch((err) => {
@@ -1190,7 +1188,7 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
                         placeholder="Selecciona un flujo"
                         options={this.state.viewModel.FlowsTypes == undefined ? [] : this.state.viewModel.FlowsTypes}
                         required={true}
-                        onChange={this.onFlowChange.bind(this)}
+                        onChanged={this.onFlowChange.bind(this)}
                       //errorMessage={this.getValidationErrorMessage(entity.Client)}
                       />
                       <Dialog
@@ -1662,7 +1660,7 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
   }
 
   private onFlowChange(item: IDropdownOption) {
-    console.log(item.text);
+    this.setState({ flowSelected: new LookupValue({ ItemId: item.key as number, Value: item.text }) });
   }
 
   private onProductCategoryChanged(item: IDropdownOption) {
@@ -2028,13 +2026,15 @@ export class PromoForm extends React.Component<IPromoFormProps, IPromoFormState>
         return;
     }
     else if (this.state.actionConfirmationDialogType == ActionConfirmationType.FlowAsign) {
+      console.log("HHHHH");
+      console.log(this.state.flowSelected);
       this.setState({
         enableSubmit: false,
         hideActionConfirmationDialog: true,
         hideSavingSpinnerConfirmationDialog: false
       });
 
-      PromoService.FlowAsign(this.state.viewModel.Entity, this.state.actionsComments, "").then(() => {
+      PromoService.FlowAsign(this.state.viewModel.Entity, this.state.actionsComments, this.state.flowSelected).then(() => {
         this.setState({
           formSubmitted: true,
           resultIsOK: true

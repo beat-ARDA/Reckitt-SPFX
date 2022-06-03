@@ -6,6 +6,7 @@ import { SecurityHelper } from "../../../common/SecurityHelper";
 import { PromoRepository } from "../../../data";
 import { FlowApproversRepository } from "../../../data/FlowApproversRepository";
 import { WorkflowLogRepository } from "../../../data/WorkflowLogRepository";
+import { LookupValue } from "../../../infrastructure";
 import { PromoViewModel } from "../PromoViewModel";
 import { PromoState } from "./PromoState";
 
@@ -36,7 +37,8 @@ export class ApprovalState extends PromoState {
 
         if (
             this.GetCurrentStage().UserCanApprove(currentUser.ItemId) &&
-            viewModel.Entity.TipoFlujo != "") {
+            (viewModel.Entity.TipoFlujo != undefined
+                || viewModel.Entity.TipoFlujo != null)) {
             viewModel.ShowApproveButton = true;
             viewModel.ShowRejectButton = true;
         }
@@ -106,7 +108,7 @@ export class ApprovalState extends PromoState {
         return NotificacionsManager.SendTaskRejectedNotification(this.Entity, comments, user.Value, to);
     }
 
-    public async FlowAsign(comments: string, flowType: string): Promise<void> {
+    public async FlowAsign(comments: string, flowType: LookupValue): Promise<void> {
         const stage = this.GetCurrentStage();
         const user = await SecurityHelper.GetCurrentUser();
         const kam = await SecurityHelper.GetUserById(this.Entity.Client.KeyAccountManager.ItemId);
@@ -135,7 +137,7 @@ export class ApprovalState extends PromoState {
             readerIDs = readerIDs.concat(this.Entity.WorkflowStages[i].CompletedBy);
 
         this.Entity.TipoFlujo = flowType;
-        let mensaje = "Asignado" + "-" + flowType;
+        let mensaje = "Asignado" + "-" + flowType.Value as string;
         await SecurityHelper.SetPromoPermissions(this.Entity.ItemId, readerIDs, this.GetCurrentStage().GetPendingUserIDs());
         await PromoRepository.SaveOrUpdate(this.Entity, 1);
         await WorkflowLogRepository.Save(this.Entity.ItemId, this.Entity.PromoID, mensaje, comments, this.Entity);

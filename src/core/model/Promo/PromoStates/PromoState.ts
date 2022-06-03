@@ -1,5 +1,6 @@
 import { Constants } from "../../..";
 import { ApproversRepository } from "../../../data/ApproversRepository";
+import { LookupValue } from "../../../infrastructure";
 import { Promo } from "../Promo";
 import { PromoViewModel } from "../PromoViewModel";
 import { PromoWorkflowState } from "../PromoWorkflowState";
@@ -37,7 +38,7 @@ export abstract class PromoState {
         //throw new Error(Constants.Messages.NotAllowedAction);
     }
 
-    public async FlowAsign(comments: string, flowType: string): Promise<void> {
+    public async FlowAsign(comments: string, flowType: LookupValue): Promise<void> {
         return;
         //throw new Error(Constants.Messages.NotAllowedAction);
     }

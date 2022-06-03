@@ -1,4 +1,4 @@
-import { Entity } from "../../infrastructure";
+import { Entity, LookupValue } from "../../infrastructure";
 import { CategoryType, Client, ClientProduct, WorkflowLog } from "../Common";
 import { NewPromoState, PromoState, DraftPromoState } from "./PromoStates";
 import { PromoStatus, PromoViewModel } from "./";
@@ -26,7 +26,7 @@ export class Promo extends Entity {
     public Evidence: PromoEvidence[] = [];
     protected _state: PromoState;
     public Approvals: string = "";
-    public TipoFlujo: string;
+    public TipoFlujo: LookupValue;
 
     constructor(configuration: Configuration) {
         super();
@@ -105,7 +105,7 @@ export class Promo extends Entity {
         return this._state.Proven(comments);
     }
 
-    public FlowAsign(comments: string, flowType: string): Promise<void> {
+    public FlowAsign(comments: string, flowType: LookupValue): Promise<void> {
         return this._state.FlowAsign(comments, flowType);
     }
 

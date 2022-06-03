@@ -1,4 +1,4 @@
-import { ActionConfirmationType } from "../../infrastructure";
+import { ActionConfirmationType, LookupValue } from "../../infrastructure";
 import { ClientProduct } from "../../model/Common";
 import { PromoViewModel } from "../../model/Promo/PromoViewModel";
 export interface IPromoFormState {
@@ -31,6 +31,6 @@ export interface IPromoFormState {
     currentUser: String;
     promoProven: boolean;
     flowApproval: boolean;
-    flowSelected: string;
+    flowSelected: LookupValue;
 }
 //# sourceMappingURL=IPromoFormState.d.ts.map

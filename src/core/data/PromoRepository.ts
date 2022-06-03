@@ -1,5 +1,5 @@
 import { IItemAddResult, sp } from "@pnp/sp/presets/all";
-import {concat } from "lodash";
+import { concat } from "lodash";
 import { ClientRepository, ConfigurationRepository } from ".";
 import { Client, WorkflowLog } from "../model/Common";
 import { Approvers } from "../model/Common/Approvers/Approvers";
@@ -12,127 +12,127 @@ import { PromoItemRepository } from "./PromoItemRepository";
 import { WorkflowLogRepository } from "./WorkflowLogRepository";
 
 export class PromoRepository {
-    public static LIST_NAME: string = "Promociones";
+  public static LIST_NAME: string = "Promociones";
 
-    public static async GetById(id: number): Promise<Promo> {
-      const item = await sp.web.lists.getByTitle(PromoRepository.LIST_NAME)
-        .items.getById(id).select(
-          "ID", 
-          "Title", 
-          "PromoName", 
-          "ActivityObjective", 
-          "ClientId", 
-          "StatusId",
-          "SYS_WorkflowStages",
-          "SYS_CurrentStageNumber",
-          "Approvals",
-          "TipoFlujo/Title"
-        ).expand("TipoFlujo").get();  
-        
-      const items = await PromoItemRepository.GetByPromo(item.ID, item.ClientId);      
-      const client = item.ClientId ? await ClientRepository.GetById(item.ClientId) : null;
-      const workflowLog = await WorkflowLogRepository.GetByPromo(item.ID);
-      const evidence = await EvidenceRepository.GetByPromoID(item.Title);
+  public static async GetById(id: number): Promise<Promo> {
+    const item = await sp.web.lists.getByTitle(PromoRepository.LIST_NAME)
+      .items.getById(id).select(
+        "ID",
+        "Title",
+        "PromoName",
+        "ActivityObjective",
+        "ClientId",
+        "StatusId",
+        "SYS_WorkflowStages",
+        "SYS_CurrentStageNumber",
+        "Approvals",
+        "TipoFlujo/Title"
+      ).expand("TipoFlujo").get();
 
-      return PromoRepository.BuildEntity(item, items, client, workflowLog, evidence);
-    }
-    public static async SaveOrUpdate(entity: Promo, sU: number = 0): Promise<void> {
-      const pendingApprovers = entity.GetPendingApproverIDs();
-      let aprobadores: any;
+    const items = await PromoItemRepository.GetByPromo(item.ID, item.ClientId);
+    const client = item.ClientId ? await ClientRepository.GetById(item.ClientId) : null;
+    const workflowLog = await WorkflowLogRepository.GetByPromo(item.ID);
+    const evidence = await EvidenceRepository.GetByPromoID(item.Title);
 
-      if (sU == 0) {
-        const approvers = await ApproversRepository.GetInstance();
-        const kamUserId = entity.Client.Channel.HeadOfChannel.ItemId;
-        const approverUserId = approvers.Phase1Approver1.ItemId;
-        const kamUser = entity.Client.Channel.HeadOfChannel.Value;
-        const approverUser = approvers.Phase1Approver1.Value;
+    return PromoRepository.BuildEntity(item, items, client, workflowLog, evidence);
+  }
+  public static async SaveOrUpdate(entity: Promo, sU: number = 0): Promise<void> {
+    const pendingApprovers = entity.GetPendingApproverIDs();
+    let aprobadores: any;
 
-        if (kamUser != approverUser)
-          aprobadores = concat(kamUserId + "-" + kamUser + ": " + "Pendiente| " + approverUserId + "-" + approverUser + ": " + "Pendiente|").toString();
-        else
-          aprobadores = concat(kamUserId + "-" + kamUser + ": " + "Pendiente|").toString();
-  
-        if (entity.GetTotalEstimatedInvestment() > entity.Config.ApprovalAmountLimit) {
-          const approver1Id = approvers.Phase3Approver1.ItemId;
-          const approver2Id = approvers.Phase3Approver2.ItemId;
-          const approver1 = approvers.Phase3Approver1.Value;
-          const approver2 = approvers.Phase3Approver2.Value;
-  
-          if (approver1 != approver2)
-            aprobadores = concat(aprobadores + " " + approver1Id + "-" + approver1 + ": Pendiente| " + approver2Id + "-" + approver2 + ": Pendiente|").toString();
-          else
-            aprobadores = concat(aprobadores + " " + approver1Id + "-" + approver1 + ": Pendiente| ").toString();
-        }
-      }
-      const data = {       
-        PromoName: entity.Name, 
-        ActivityObjective: entity.ActivityObjective,
-        ClientId: entity.Client ? entity.Client.ItemId : null,
-        TotalEstimatedROI: entity.GetROI(),
-        StartDate: entity.GetFromDate(),
-        EndDate: entity.GetToDate(),
-        Status: entity.GetStatusText(),
-        StatusId: entity.GetStatusId(),
-        SYS_WorkflowStages: entity.WorkflowStages ? JSON.stringify(entity.WorkflowStages) : null,
-        SYS_CurrentStageNumber: entity.CurrentStageNumber,
-        PendingApproversId: { results: pendingApprovers ? entity.GetPendingApproverIDs() : [] },
-        TotalEstimatedInvestment: entity.GetTotalEstimatedInvestment(),
-        Approvals: aprobadores        
-      };
+    if (sU == 0) {
+      const approvers = await ApproversRepository.GetInstance();
+      const kamUserId = entity.Client.Channel.HeadOfChannel.ItemId;
+      const approverUserId = approvers.Phase1Approver1.ItemId;
+      const kamUser = entity.Client.Channel.HeadOfChannel.Value;
+      const approverUser = approvers.Phase1Approver1.Value;
 
-      if(!entity.ItemId) {
-        const iar: IItemAddResult = await sp.web.lists.getByTitle(PromoRepository.LIST_NAME).items.add(data);
-
-        //TODO: Obtener prefijo de país desde configuración
-        entity.ItemId = iar.data.ID;
-        entity.PromoID = entity.Config.CountryCode + iar.data.ID;
-        
-        await sp.web.lists.getByTitle(PromoRepository.LIST_NAME).items.getById(iar.data.ID).update({
-          Title: entity.PromoID,
-          PromoLink: entity.PromoID
-        });
-      }
+      if (kamUser != approverUser)
+        aprobadores = concat(kamUserId + "-" + kamUser + ": " + "Pendiente| " + approverUserId + "-" + approverUser + ": " + "Pendiente|").toString();
       else
-        await sp.web.lists.getByTitle(PromoRepository.LIST_NAME).items.getById(entity.ItemId).update(data);
+        aprobadores = concat(kamUserId + "-" + kamUser + ": " + "Pendiente|").toString();
 
-      await PromoItemRepository.SaveOrUpdateItems(entity.ItemId, entity.PromoID, entity.Items);
-    }
-    public static async GetNewPromo() : Promise<Promo>
-    {
-      let configuration = await ConfigurationRepository.GetInstance();
-      return new Promo(configuration);
-    }
-    private static async BuildEntity(item: any, items: PromoItem[], client: Client, workflowLog: WorkflowLog[], evidence: PromoEvidence[]): Promise<Promo> {
+      if (entity.GetTotalEstimatedInvestment() > entity.Config.ApprovalAmountLimit) {
+        const approver1Id = approvers.Phase3Approver1.ItemId;
+        const approver2Id = approvers.Phase3Approver2.ItemId;
+        const approver1 = approvers.Phase3Approver1.Value;
+        const approver2 = approvers.Phase3Approver2.Value;
 
-      let entity = await PromoRepository.GetNewPromo();
-
-      entity.ItemId = item.ID;
-      entity.Name = item.PromoName;
-      entity.PromoID = item.Title;
-      entity.ActivityObjective = item.ActivityObjective;
-      entity.Client = client;     
-      entity.CurrentStageNumber = item.SYS_CurrentStageNumber; 
-      entity.WorkflowLog = workflowLog;
-      entity.Evidence = evidence;
-      entity.TipoFlujo = item.TipoFlujo.Title == undefined ? "" : item.TipoFlujo.Title;
-
-      items.map((promoItem) => {
-        promoItem.GetBaseGMSum = entity.GetBaseGMSum.bind(entity);
-      });
-
-      entity.Items = items;
-
-      if(item.SYS_WorkflowStages) {
-        const data: any[] = JSON.parse(item.SYS_WorkflowStages);
-        entity.WorkflowStages = [];
-        
-        data.map((stage) => {
-          entity.WorkflowStages.push(new PromoWorkflowState(stage.ApproverIDs, stage.CompletedBy));
-        });
+        if (approver1 != approver2)
+          aprobadores = concat(aprobadores + " " + approver1Id + "-" + approver1 + ": Pendiente| " + approver2Id + "-" + approver2 + ": Pendiente|").toString();
+        else
+          aprobadores = concat(aprobadores + " " + approver1Id + "-" + approver1 + ": Pendiente| ").toString();
       }
-
-      entity.ChangeState(parseInt(item.StatusId));
-
-      return entity;
     }
+    const data = {
+      PromoName: entity.Name,
+      ActivityObjective: entity.ActivityObjective,
+      ClientId: entity.Client ? entity.Client.ItemId : null,
+      TotalEstimatedROI: entity.GetROI(),
+      StartDate: entity.GetFromDate(),
+      EndDate: entity.GetToDate(),
+      Status: entity.GetStatusText(),
+      StatusId: entity.GetStatusId(),
+      SYS_WorkflowStages: entity.WorkflowStages ? JSON.stringify(entity.WorkflowStages) : null,
+      SYS_CurrentStageNumber: entity.CurrentStageNumber,
+      PendingApproversId: { results: pendingApprovers ? entity.GetPendingApproverIDs() : [] },
+      TotalEstimatedInvestment: entity.GetTotalEstimatedInvestment(),
+      Approvals: aprobadores,
+      TipoFlujo: entity.TipoFlujo
+    };
+
+    if (!entity.ItemId) {
+      const iar: IItemAddResult = await sp.web.lists.getByTitle(PromoRepository.LIST_NAME).items.add(data);
+
+      //TODO: Obtener prefijo de país desde configuración
+      entity.ItemId = iar.data.ID;
+      entity.PromoID = entity.Config.CountryCode + iar.data.ID;
+
+      await sp.web.lists.getByTitle(PromoRepository.LIST_NAME).items.getById(iar.data.ID).update({
+        Title: entity.PromoID,
+        PromoLink: entity.PromoID
+      });
+    }
+    else
+      await sp.web.lists.getByTitle(PromoRepository.LIST_NAME).items.getById(entity.ItemId).update(data);
+
+    await PromoItemRepository.SaveOrUpdateItems(entity.ItemId, entity.PromoID, entity.Items);
+  }
+  public static async GetNewPromo(): Promise<Promo> {
+    let configuration = await ConfigurationRepository.GetInstance();
+    return new Promo(configuration);
+  }
+  private static async BuildEntity(item: any, items: PromoItem[], client: Client, workflowLog: WorkflowLog[], evidence: PromoEvidence[]): Promise<Promo> {
+
+    let entity = await PromoRepository.GetNewPromo();
+
+    entity.ItemId = item.ID;
+    entity.Name = item.PromoName;
+    entity.PromoID = item.Title;
+    entity.ActivityObjective = item.ActivityObjective;
+    entity.Client = client;
+    entity.CurrentStageNumber = item.SYS_CurrentStageNumber;
+    entity.WorkflowLog = workflowLog;
+    entity.Evidence = evidence;
+    entity.TipoFlujo = item.TipoFlujo.Title == undefined ? null : item.TipoFlujo.Title;
+
+    items.map((promoItem) => {
+      promoItem.GetBaseGMSum = entity.GetBaseGMSum.bind(entity);
+    });
+
+    entity.Items = items;
+
+    if (item.SYS_WorkflowStages) {
+      const data: any[] = JSON.parse(item.SYS_WorkflowStages);
+      entity.WorkflowStages = [];
+
+      data.map((stage) => {
+        entity.WorkflowStages.push(new PromoWorkflowState(stage.ApproverIDs, stage.CompletedBy));
+      });
+    }
+
+    entity.ChangeState(parseInt(item.StatusId));
+
+    return entity;
+  }
 }

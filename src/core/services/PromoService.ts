@@ -6,6 +6,7 @@ import { Type } from "../model/Common";
 import { ConfigurationRepository } from "../data";
 import { PromoEvidence } from "../model/Promo/PromoEvidence";
 import { EvidenceRepository } from "../data/EvidenceRepository";
+import { LookupValue } from "../infrastructure";
 
 export class PromoService {
 
@@ -46,7 +47,7 @@ export class PromoService {
     return await (await this.GetPromo(entity.ItemId)).Proven(comments);
   }
 
-  public static async FlowAsign(entity: Promo, comments: string, flowType: string): Promise<void> {
+  public static async FlowAsign(entity: Promo, comments: string, flowType: LookupValue): Promise<void> {
     return await (await this.GetPromo(entity.ItemId)).FlowAsign(comments, flowType);
   }
 }

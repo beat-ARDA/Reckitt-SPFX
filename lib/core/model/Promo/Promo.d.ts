@@ -1,4 +1,4 @@
-import { Entity } from "../../infrastructure";
+import { Entity, LookupValue } from "../../infrastructure";
 import { CategoryType, Client, WorkflowLog } from "../Common";
 import { PromoState } from "./PromoStates";
 import { PromoStatus, PromoViewModel } from "./";
@@ -19,7 +19,7 @@ export declare class Promo extends Entity {
     Evidence: PromoEvidence[];
     protected _state: PromoState;
     Approvals: string;
-    TipoFlujo: string;
+    TipoFlujo: LookupValue;
     constructor(configuration: Configuration);
     ChangeState(status: PromoStatus): void;
     InitializeState(): Promise<void>;
@@ -32,7 +32,7 @@ export declare class Promo extends Entity {
     Approve(comments: string): Promise<void>;
     Reject(comments: string): Promise<void>;
     Proven(comments: string): Promise<void>;
-    FlowAsign(comments: string, flowType: string): Promise<void>;
+    FlowAsign(comments: string, flowType: LookupValue): Promise<void>;
     GetBaseGMSum(category: CategoryType): number;
     GetTotalEstimatedInvestment(): number;
     GetTotalEstimatedInvestmentAsString(): string;
