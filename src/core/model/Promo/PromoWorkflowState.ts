@@ -11,25 +11,24 @@ export class PromoWorkflowState {
         this.CompletedBy = completedBy || [];
     }
 
-    public IsComplete():boolean {
+    public IsComplete(): boolean {
         return this.ApproverIDs.length == this.CompletedBy.length;
     }
 
-    public UserCanApprove(userId: number): boolean
-    {
+    public UserCanApprove(userId: number): boolean {
         return this.GetPendingUserIDs().indexOf(userId) != -1;
     }
 
     public AddToCompletBy(userId: number): void {
-        if(this.ApproverIDs.indexOf(userId) != -1)
+        if (this.ApproverIDs.indexOf(userId) != -1)
             this.CompletedBy.push(userId);
     }
 
     public GetPendingUserIDs(): number[] {
         let userIDs = [];
-
+        console.log(this.ApproverIDs); 
         this.ApproverIDs.map((approverID) => {
-            if(this.CompletedBy.indexOf(approverID) == -1)
+            if (this.CompletedBy.indexOf(approverID) == -1)
                 userIDs.push(approverID);
         });
 
@@ -38,10 +37,10 @@ export class PromoWorkflowState {
 
     public async GetPendingUsers(): Promise<UserValue[]> {
         const users = [];
-        
+
         await Promise.all(this.GetPendingUserIDs().map(async (userId) => {
-            const user = await SecurityHelper.GetUserById(userId);            
-            if(!CommonHelper.IsNullOrEmpty(user.Email))
+            const user = await SecurityHelper.GetUserById(userId);
+            if (!CommonHelper.IsNullOrEmpty(user.Email))
                 users.push(user);
         }));
 

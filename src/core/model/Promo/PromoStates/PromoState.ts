@@ -48,7 +48,6 @@ export abstract class PromoState {
         const kamUserId = entity.Client.Channel.HeadOfChannel.ItemId;
         const teamLeader = entity.Client.teamLeader;
 
-
         if (entity.TipoFlujo == undefined) {
             entity.WorkflowStages = [new PromoWorkflowState([
                 approvers.Phase0Coordinator1.ItemId,

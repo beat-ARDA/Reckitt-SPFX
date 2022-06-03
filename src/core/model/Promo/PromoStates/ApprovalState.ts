@@ -35,9 +35,39 @@ export class ApprovalState extends PromoState {
         viewModel.ReadOnlyForm = true;
         const currentUser = await SecurityHelper.GetCurrentUser();
         viewModel.FlowsTypes = await FlowApproversRepository.GetAll();
+        console.log(viewModel.Entity);
+        let puedeAprobar = false;
+        let indexUser;
+
+        // if (this.GetCurrentStage().UserCanApprove(currentUser.ItemId)
+        //     && viewModel.Entity.WorkflowStages[0].ApproverIDs[0]
+        //     == currentUser.ItemId) {
+        //     puedeAprobar = true;
+        //     indexUser = -1;
+        // }
+        for (let i = 0; i < viewModel.Entity.WorkflowStages[0].ApproverIDs.length; i++) {
+            if (viewModel.Entity.WorkflowStages[0].ApproverIDs[i] == currentUser.ItemId) {
+                indexUser = i;
+                viewModel.Entity.WorkflowStages[0].ApproverIDs.length -= 1;
+            }
+        }
+        // }
+
+        console.log(this.GetCurrentStage().UserCanApprove(29));
+        console.log(this.GetCurrentStage().UserCanApprove(currentUser.ItemId));
+        console.log(currentUser.ItemId);
+        if (indexUser > 0) {
+            if (!this.GetCurrentStage().UserCanApprove(viewModel.Entity.WorkflowStages[0].ApproverIDs[indexUser - 1])
+                && this.GetCurrentStage().UserCanApprove(currentUser.ItemId))
+                puedeAprobar = true;
+        }
+        else if (indexUser == 0 && this.GetCurrentStage().UserCanApprove(currentUser.ItemId))
+            puedeAprobar = true;
+
+        // }
 
         if (
-            this.GetCurrentStage().UserCanApprove(currentUser.ItemId) &&
+            puedeAprobar &&
             viewModel.Entity.TipoFlujo != null) {
             viewModel.ShowApproveButton = true;
             viewModel.ShowRejectButton = true;
