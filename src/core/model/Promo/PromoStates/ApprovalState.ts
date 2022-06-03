@@ -36,7 +36,6 @@ export class ApprovalState extends PromoState {
         const currentUser = await SecurityHelper.GetCurrentUser();
         viewModel.FlowsTypes = await FlowApproversRepository.GetAll();
 
-        console.log(this.GetCurrentStage().UserCanApprove(currentUser.ItemId));
         if (
             this.GetCurrentStage().UserCanApprove(currentUser.ItemId) &&
             viewModel.Entity.TipoFlujo != null) {
@@ -112,39 +111,39 @@ export class ApprovalState extends PromoState {
     public async FlowAsign(entity: Promo, comments: string, flowType: FlowType): Promise<void> {
         const stage = this.GetCurrentStage();
         const user = await SecurityHelper.GetCurrentUser();
-        const kam = await SecurityHelper.GetUserById(this.Entity.Client.KeyAccountManager.ItemId);
+        const kam = await SecurityHelper.GetUserById(entity.Client.KeyAccountManager.ItemId);
 
         await this.InitializeWorkflowState(entity);
 
         stage.AddToCompletBy(user.ItemId);
 
         if (stage.IsComplete()) {
-            if (this.Entity.CurrentStageNumber == this.Entity.WorkflowStages.length) {
+            if (entity.CurrentStageNumber == entity.WorkflowStages.length) {
                 const to = kam.Email;
 
-                NotificacionsManager.SendWorkflowApprovedNotification(this.Entity, to);
+                NotificacionsManager.SendWorkflowApprovedNotification(entity, to);
             }
             else {
-                this.Entity.CurrentStageNumber++;
+                entity.CurrentStageNumber++;
                 const users = await this.GetCurrentStage().GetPendingUsers();
 
                 await Promise.all(users.map(async (usr) => {
-                    await NotificacionsManager.SendTaskAssignedNotification(this.Entity, usr.Email, null, usr.Value);
+                    await NotificacionsManager.SendTaskAssignedNotification(entity, usr.Email, null, usr.Value);
                 }));
             }
         }
 
-        let readerIDs = [this.Entity.Client.KeyAccountManager.ItemId];
+        let readerIDs = [entity.Client.KeyAccountManager.ItemId];
 
-        for (let i = 0; i < this.Entity.CurrentStageNumber; i++)
-            readerIDs = readerIDs.concat(this.Entity.WorkflowStages[i].CompletedBy);
+        for (let i = 0; i < entity.CurrentStageNumber; i++)
+            readerIDs = readerIDs.concat(entity.WorkflowStages[i].CompletedBy);
 
-        this.Entity.TipoFlujo = flowType;
+        entity.TipoFlujo = flowType;
         let mensaje = "Asignado" + "-" + flowType.Name as string;
-        await SecurityHelper.SetPromoPermissions(this.Entity.ItemId, readerIDs, this.GetCurrentStage().GetPendingUserIDs());
-        await PromoRepository.SaveOrUpdate(this.Entity, 1);
-        await WorkflowLogRepository.Save(this.Entity.ItemId, this.Entity.PromoID, mensaje, comments, this.Entity);
+        await SecurityHelper.SetPromoPermissions(entity.ItemId, readerIDs, this.GetCurrentStage().GetPendingUserIDs());
+        await PromoRepository.SaveOrUpdate(entity, 1);
+        await WorkflowLogRepository.Save(entity.ItemId, entity.PromoID, mensaje, comments, entity);
 
-        return NotificacionsManager.SendTaskApprovedNotification(this.Entity, user.Value, kam.Email);
+        return NotificacionsManager.SendTaskApprovedNotification(entity, user.Value, kam.Email);
     }
 }

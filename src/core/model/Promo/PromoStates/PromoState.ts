@@ -47,9 +47,9 @@ export abstract class PromoState {
         const approvers = await ApproversRepository.GetInstance();
         const kamUserId = entity.Client.Channel.HeadOfChannel.ItemId;
         const teamLeader = entity.Client.teamLeader;
-        const approverUserId = approvers.Phase1Approver1.ItemId;
 
-        if (entity.TipoFlujo == null) {
+
+        if (entity.TipoFlujo == undefined) {
             entity.WorkflowStages = [new PromoWorkflowState([
                 approvers.Phase0Coordinator1.ItemId,
                 approvers.Phase0Coordinator2.ItemId,
