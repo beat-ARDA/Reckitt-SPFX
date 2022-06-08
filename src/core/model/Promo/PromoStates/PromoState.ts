@@ -1,6 +1,5 @@
 import { Constants } from "../../..";
 import { ApproversRepository } from "../../../data/ApproversRepository";
-import { LookupValue } from "../../../infrastructure";
 import { Promo } from "../Promo";
 import { PromoViewModel } from "../PromoViewModel";
 import { PromoWorkflowState } from "../PromoWorkflowState";
@@ -49,10 +48,13 @@ export abstract class PromoState {
         const teamLeader = entity.Client.teamLeader;
 
         if (entity.TipoFlujo == undefined) {
-            entity.WorkflowStages = [new PromoWorkflowState([
-                approvers.Phase0Coordinator1.ItemId,
-                approvers.Phase0Coordinator2.ItemId,
-                approvers.Phase0Coordinator3.ItemId])];
+            let ids: number[] = [approvers.Phase0Coordinator1.ItemId];
+            if (ids.indexOf(approvers.Phase0Coordinator2.ItemId) == -1)
+                ids.push(approvers.Phase0Coordinator2.ItemId);
+            if (ids.indexOf(approvers.Phase0Coordinator3.ItemId) == -1)
+                ids.push(approvers.Phase0Coordinator3.ItemId);
+            entity.WorkflowStages = [new PromoWorkflowState(ids)];
+
         }
         else {
             if (entity.TipoFlujo.ItemId == 1) {
@@ -60,35 +62,27 @@ export abstract class PromoState {
                     approvers.Phase1Approver1.ItemId])];
             }
             else if (entity.TipoFlujo.ItemId == 2) {
-                entity.WorkflowStages = [new PromoWorkflowState([
-                    teamLeader.ItemId,
-                    kamUserId,
-                    approvers.Phase2Approver1.ItemId])];
+                let ids: number[] = [teamLeader.ItemId];
+                if (ids.indexOf(kamUserId) == -1)
+                    ids.push(kamUserId);
+                if (ids.indexOf(approvers.Phase2Approver1.ItemId) == -1)
+                    ids.push(approvers.Phase2Approver1.ItemId);
+                entity.WorkflowStages = [new PromoWorkflowState(ids)];
             }
             else if (entity.TipoFlujo.ItemId == 3) {
-                entity.WorkflowStages = [new PromoWorkflowState([
-                    teamLeader.ItemId,
-                    kamUserId,
-                    approvers.Phase2Approver1.ItemId,
-                    approvers.Phase3Approver1.ItemId,
-                    approvers.Phase3Approver2.ItemId])];
+                let ids: number[] = [teamLeader.ItemId];
+                if (ids.indexOf(kamUserId) == -1)
+                    ids.push(kamUserId);
+                if (ids.indexOf(approvers.Phase2Approver1.ItemId) == -1)
+                    ids.push(approvers.Phase2Approver1.ItemId);
+                if (ids.indexOf(approvers.Phase3Approver1.ItemId) == -1)
+                    ids.push(approvers.Phase3Approver1.ItemId);
+                if (ids.indexOf(approvers.Phase3Approver2.ItemId) == -1)
+                    ids.push(approvers.Phase3Approver2.ItemId);
+
+                entity.WorkflowStages = [new PromoWorkflowState(ids)];
             }
         }
-
-        // if (kamUserId != approverUserId)
-        //     entity.WorkflowStages = [new PromoWorkflowState([kamUserId, approverUserId])];
-        // else
-        //     entity.WorkflowStages = [new PromoWorkflowState([kamUserId])];
-
-        // if (entity.GetTotalEstimatedInvestment() > entity.Config.ApprovalAmountLimit) {
-        //     const approver1 = approvers.Phase2Approver1.ItemId;
-        //     const approver2 = approvers.Phase3Approver1.ItemId;
-
-        //     if (approver1 != approver2)
-        //         entity.WorkflowStages.push(new PromoWorkflowState([approver1, approver2]));
-        //     else
-        //         entity.WorkflowStages.push(new PromoWorkflowState([approver1]));
-        // }
 
         entity.CurrentStageNumber = 1;
     }

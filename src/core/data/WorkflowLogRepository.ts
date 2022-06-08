@@ -40,37 +40,6 @@ export class WorkflowLogRepository {
         };
 
         await sp.web.lists.getByTitle(WorkflowLogRepository.LIST_NAME).items.add(data);
-
-        const apr = await sp.web.lists.getByTitle(PromoRepository.LIST_NAME)
-            .items.getById(entity.ItemId).select(
-                "Approvals"
-            ).get();
-
-        let aprobadores = "";
-        let encontrado: boolean = false;
-
-
-        apr.Approvals.split("|").map((data) => {
-            if (Number(data.split("-")[0]) == currentUser.ItemId && !encontrado) {
-                console.log(data);
-                console.log(data.replace("Pendiente", action));
-                if (data.replace("Pendiente", action) !== data) {
-                    aprobadores = concat(aprobadores + data.replace("Pendiente", action) + "|").toString();
-                    encontrado = true;
-                }
-                else
-                    data != null || data != "" || data ? aprobadores = concat(aprobadores + data + "|").toString() : null
-            }
-            else
-                data != null || data != "" || data ? aprobadores = concat(aprobadores + data + "|").toString() : null
-        });
-
-
-        if (aprobadores !== "") {
-            await sp.web.lists.getByTitle(PromoRepository.LIST_NAME).items.getById(promoItemId).update({
-                Approvals: aprobadores
-            });
-        }
     }
 
     private static BuildEntity(item: any): WorkflowLog {

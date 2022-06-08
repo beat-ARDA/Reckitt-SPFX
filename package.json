@@ -17,8 +17,11 @@
     "build-package-production": "gulp clean && gulp bundle --ship && gulp package-solution --ship"
   },
   "dependencies": {
+    "@fluentui/react-tabs": "^0.6.21",
+    "@microsoft/decorators": "1.11.0",
     "@microsoft/sp-core-library": "1.11.0",
     "@microsoft/sp-dialog": "1.11.0",
+    "@microsoft/sp-listview-extensibility": "1.11.0",
     "@microsoft/sp-lodash-subset": "1.11.0",
     "@microsoft/sp-office-ui-fabric-core": "1.11.0",
     "@microsoft/sp-property-pane": "1.11.0",
@@ -28,14 +31,11 @@
     "@types/react": "16.8.8",
     "@types/react-dom": "16.8.3",
     "@types/webpack-env": "1.13.1",
+    "@uifabric/example-data": "^7.1.5",
     "office-ui-fabric-react": "^7.0.0",
     "react": "16.8.5",
     "react-dom": "16.8.5",
-    "react-select": "^3.1.1",
-    "@fluentui/react-tabs": "^0.6.21",
-    "@uifabric/example-data": "^7.1.5",
-    "@microsoft/decorators": "1.11.0",
-    "@microsoft/sp-listview-extensibility": "1.11.0"
+    "react-select": "^3.1.1"
   },
   "resolutions": {
     "@types/react": "16.8.8"

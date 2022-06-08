@@ -131,6 +131,26 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getManifests", function() { return getManifests; });
 var MANIFESTS_ARRAY = [
   {
+    "id": "f97266fb-ccb7-430e-9384-4124d05295d3",
+    "alias": "Decorators",
+    "componentType": "Library",
+    "version": "1.11.0",
+    "manifestVersion": 2,
+    "loaderConfig": {
+      "entryModuleId": "decorators",
+      "internalModuleBaseUrls": [
+        "https://localhost:4321/node_modules/@microsoft/sp-property-pane/node_modules/@microsoft/decorators/"
+      ],
+      "scriptResources": {
+        "decorators": {
+          "type": "path",
+          "path": "dist/decorators.js"
+        }
+      }
+    },
+    "isInternal": true
+  },
+  {
     "id": "73e1dc6c-8441-42cc-ad47-4bd3659f8a3a",
     "alias": "SPLodashSubset",
     "componentType": "Library",
@@ -139,7 +159,7 @@ var MANIFESTS_ARRAY = [
     "loaderConfig": {
       "entryModuleId": "sp-lodash-subset",
       "internalModuleBaseUrls": [
-        "https://localhost:4321/node_modules/@microsoft/sp-lodash-subset/"
+        "https://localhost:4321/node_modules/@microsoft/sp-property-pane/node_modules/@microsoft/sp-lodash-subset/"
       ],
       "scriptResources": {
         "sp-lodash-subset": {
@@ -176,26 +196,6 @@ var MANIFESTS_ARRAY = [
     "isInternal": true
   },
   {
-    "id": "f97266fb-ccb7-430e-9384-4124d05295d3",
-    "alias": "Decorators",
-    "componentType": "Library",
-    "version": "1.11.0",
-    "manifestVersion": 2,
-    "loaderConfig": {
-      "entryModuleId": "decorators",
-      "internalModuleBaseUrls": [
-        "https://localhost:4321/node_modules/@microsoft/decorators/"
-      ],
-      "scriptResources": {
-        "decorators": {
-          "type": "path",
-          "path": "dist/decorators.js"
-        }
-      }
-    },
-    "isInternal": true
-  },
-  {
     "id": "02a01e42-69ab-403d-8a16-acd128661f8e",
     "alias": "OfficeUIFabricReact",
     "componentType": "Library",
@@ -204,7 +204,7 @@ var MANIFESTS_ARRAY = [
     "loaderConfig": {
       "entryModuleId": "office-ui-fabric-react-bundle",
       "internalModuleBaseUrls": [
-        "https://localhost:4321/node_modules/@microsoft/office-ui-fabric-react-bundle/"
+        "https://localhost:4321/node_modules/@microsoft/sp-property-pane/node_modules/@microsoft/office-ui-fabric-react-bundle/"
       ],
       "scriptResources": {
         "office-ui-fabric-react-bundle": {
@@ -246,7 +246,7 @@ var MANIFESTS_ARRAY = [
     "loaderConfig": {
       "entryModuleId": "sp-diagnostics",
       "internalModuleBaseUrls": [
-        "https://localhost:4321/node_modules/@microsoft/sp-diagnostics/"
+        "https://localhost:4321/node_modules/@microsoft/sp-property-pane/node_modules/@microsoft/sp-diagnostics/"
       ],
       "scriptResources": {
         "sp-diagnostics": {
@@ -276,7 +276,7 @@ var MANIFESTS_ARRAY = [
     "loaderConfig": {
       "entryModuleId": "sp-dynamic-data",
       "internalModuleBaseUrls": [
-        "https://localhost:4321/node_modules/@microsoft/sp-dynamic-data/"
+        "https://localhost:4321/node_modules/@microsoft/sp-property-pane/node_modules/@microsoft/sp-dynamic-data/"
       ],
       "scriptResources": {
         "sp-dynamic-data": {
@@ -311,7 +311,7 @@ var MANIFESTS_ARRAY = [
     "loaderConfig": {
       "entryModuleId": "sp-polyfills",
       "internalModuleBaseUrls": [
-        "https://localhost:4321/node_modules/@microsoft/sp-polyfills/"
+        "https://localhost:4321/node_modules/@microsoft/sp-property-pane/node_modules/@microsoft/sp-polyfills/"
       ],
       "scriptResources": {
         "sp-polyfills": {
@@ -331,7 +331,7 @@ var MANIFESTS_ARRAY = [
     "loaderConfig": {
       "entryModuleId": "sp-http",
       "internalModuleBaseUrls": [
-        "https://localhost:4321/node_modules/@microsoft/sp-http/"
+        "https://localhost:4321/node_modules/@microsoft/sp-property-pane/node_modules/@microsoft/sp-http/"
       ],
       "scriptResources": {
         "sp-http": {
@@ -361,7 +361,7 @@ var MANIFESTS_ARRAY = [
     "loaderConfig": {
       "entryModuleId": "sp-page-context",
       "internalModuleBaseUrls": [
-        "https://localhost:4321/node_modules/@microsoft/sp-page-context/"
+        "https://localhost:4321/node_modules/@microsoft/sp-property-pane/node_modules/@microsoft/sp-page-context/"
       ],
       "scriptResources": {
         "sp-page-context": {
@@ -396,7 +396,7 @@ var MANIFESTS_ARRAY = [
     "loaderConfig": {
       "entryModuleId": "sp-loader",
       "internalModuleBaseUrls": [
-        "https://localhost:4321/node_modules/@microsoft/sp-loader/"
+        "https://localhost:4321/node_modules/@microsoft/sp-property-pane/node_modules/@microsoft/sp-loader/"
       ],
       "scriptResources": {
         "sp-loader": {
@@ -456,7 +456,7 @@ var MANIFESTS_ARRAY = [
     "loaderConfig": {
       "entryModuleId": "sp-component-base",
       "internalModuleBaseUrls": [
-        "https://localhost:4321/node_modules/@microsoft/sp-component-base/"
+        "https://localhost:4321/node_modules/@microsoft/sp-property-pane/node_modules/@microsoft/sp-component-base/"
       ],
       "scriptResources": {
         "sp-component-base": {
@@ -916,31 +916,6 @@ var MANIFESTS_ARRAY = [
     "isInternal": true
   },
   {
-    "id": "29bd516f-4ece-40b7-8028-597cbc65a223",
-    "alias": "SpOfficeUIFabricCore",
-    "componentType": "Library",
-    "version": "1.11.0",
-    "manifestVersion": 2,
-    "loaderConfig": {
-      "entryModuleId": "office-ui-fabric-core",
-      "internalModuleBaseUrls": [
-        "https://localhost:4321/node_modules/@microsoft/sp-office-ui-fabric-core/"
-      ],
-      "scriptResources": {
-        "office-ui-fabric-core": {
-          "type": "path",
-          "path": "dist/office-ui-fabric-core.js"
-        },
-        "@microsoft/load-themed-styles": {
-          "type": "component",
-          "version": "0.1.2",
-          "id": "229b8d08-79f3-438b-8c21-4613fc877abd"
-        }
-      }
-    },
-    "isInternal": true
-  },
-  {
     "id": "d37b65ee-c7d8-4570-bc74-2b294ff3b380",
     "alias": "SPListViewExtensibility",
     "componentType": "Library",
@@ -976,6 +951,31 @@ var MANIFESTS_ARRAY = [
     "isInternal": true
   },
   {
+    "id": "29bd516f-4ece-40b7-8028-597cbc65a223",
+    "alias": "SpOfficeUIFabricCore",
+    "componentType": "Library",
+    "version": "1.11.0",
+    "manifestVersion": 2,
+    "loaderConfig": {
+      "entryModuleId": "office-ui-fabric-core",
+      "internalModuleBaseUrls": [
+        "https://localhost:4321/node_modules/@microsoft/sp-office-ui-fabric-core/"
+      ],
+      "scriptResources": {
+        "office-ui-fabric-core": {
+          "type": "path",
+          "path": "dist/office-ui-fabric-core.js"
+        },
+        "@microsoft/load-themed-styles": {
+          "type": "component",
+          "version": "0.1.2",
+          "id": "229b8d08-79f3-438b-8c21-4613fc877abd"
+        }
+      }
+    },
+    "isInternal": true
+  },
+  {
     "id": "e710acda-bc0c-4695-8390-5229e3fc8eaf",
     "alias": "PromoListViewLinkFieldCustomizer",
     "componentType": "Extension",
@@ -995,7 +995,8 @@ var MANIFESTS_ARRAY = [
         },
         "PromoFormWebPartWebPartStrings": {
           "defaultPath": "lib/webparts/promoFormWebPart/loc/en-us.js",
-          "type": "localizedPath"
+          "type": "localizedPath",
+          "paths": {}
         },
         "@microsoft/sp-dialog": {
           "type": "component",
@@ -1083,7 +1084,8 @@ var MANIFESTS_ARRAY = [
         },
         "PromoFormWebPartWebPartStrings": {
           "defaultPath": "lib/webparts/promoFormWebPart/loc/en-us.js",
-          "type": "localizedPath"
+          "type": "localizedPath",
+          "paths": {}
         },
         "@microsoft/sp-dialog": {
           "type": "component",

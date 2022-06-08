@@ -26,7 +26,6 @@ export class PromoWorkflowState {
 
     public GetPendingUserIDs(): number[] {
         let userIDs = [];
-        console.log(this.ApproverIDs); 
         this.ApproverIDs.map((approverID) => {
             if (this.CompletedBy.indexOf(approverID) == -1)
                 userIDs.push(approverID);

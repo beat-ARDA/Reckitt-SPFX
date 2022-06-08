@@ -10,6 +10,9 @@ import { FlowType } from "../../Common";
 import { PromoViewModel } from "../PromoViewModel";
 import { PromoState } from "./PromoState";
 import { Promo } from "../Promo";
+import { ApproversRepository } from "../../../data/ApproversRepository";
+import { PromoWorkflowState } from "../PromoWorkflowState";
+import { sp } from "@pnp/sp/presets/all";
 
 export class ApprovalState extends PromoState {
     public async Initialize(): Promise<void> {
@@ -31,31 +34,22 @@ export class ApprovalState extends PromoState {
     }
 
     public async GetViewModel(): Promise<PromoViewModel> {
+        console.log("version 7.1");
         let viewModel = new PromoViewModel(this.Entity);
         viewModel.ReadOnlyForm = true;
         const currentUser = await SecurityHelper.GetCurrentUser();
         viewModel.FlowsTypes = await FlowApproversRepository.GetAll();
-        console.log(viewModel.Entity);
-        let puedeAprobar = false;
-        let indexUser;
+        let puedeAprobar: Boolean = false;
+        let indexUser: number = -1;
+        let largoWorkFlow: number = viewModel.Entity.WorkflowStages[0].ApproverIDs.length;
 
-        // if (this.GetCurrentStage().UserCanApprove(currentUser.ItemId)
-        //     && viewModel.Entity.WorkflowStages[0].ApproverIDs[0]
-        //     == currentUser.ItemId) {
-        //     puedeAprobar = true;
-        //     indexUser = -1;
-        // }
-        for (let i = 0; i < viewModel.Entity.WorkflowStages[0].ApproverIDs.length; i++) {
+        for (let i = 0; i < largoWorkFlow; i++) {
             if (viewModel.Entity.WorkflowStages[0].ApproverIDs[i] == currentUser.ItemId) {
                 indexUser = i;
-                viewModel.Entity.WorkflowStages[0].ApproverIDs.length -= 1;
+                largoWorkFlow -= 1;
             }
         }
-        // }
 
-        console.log(this.GetCurrentStage().UserCanApprove(29));
-        console.log(this.GetCurrentStage().UserCanApprove(currentUser.ItemId));
-        console.log(currentUser.ItemId);
         if (indexUser > 0) {
             if (!this.GetCurrentStage().UserCanApprove(viewModel.Entity.WorkflowStages[0].ApproverIDs[indexUser - 1])
                 && this.GetCurrentStage().UserCanApprove(currentUser.ItemId))
@@ -63,8 +57,6 @@ export class ApprovalState extends PromoState {
         }
         else if (indexUser == 0 && this.GetCurrentStage().UserCanApprove(currentUser.ItemId))
             puedeAprobar = true;
-
-        // }
 
         if (
             puedeAprobar &&
@@ -84,21 +76,11 @@ export class ApprovalState extends PromoState {
         stage.AddToCompletBy(user.ItemId);
 
         if (stage.IsComplete()) {
-            if (this.Entity.CurrentStageNumber == this.Entity.WorkflowStages.length) {
-                this.Entity.ChangeState(PromoStatus.Approved);
+            this.Entity.ChangeState(PromoStatus.Approved);
 
-                const to = kam.Email;
+            const to = kam.Email;
 
-                NotificacionsManager.SendWorkflowApprovedNotification(this.Entity, to);
-            }
-            else {
-                this.Entity.CurrentStageNumber++;
-                const users = await this.GetCurrentStage().GetPendingUsers();
-
-                await Promise.all(users.map(async (usr) => {
-                    await NotificacionsManager.SendTaskAssignedNotification(this.Entity, usr.Email, null, usr.Value);
-                }));
-            }
+            NotificacionsManager.SendWorkflowApprovedNotification(this.Entity, to);
         }
 
         let readerIDs = [this.Entity.Client.KeyAccountManager.ItemId];
@@ -106,8 +88,45 @@ export class ApprovalState extends PromoState {
         for (let i = 0; i < this.Entity.CurrentStageNumber; i++)
             readerIDs = readerIDs.concat(this.Entity.WorkflowStages[i].CompletedBy);
 
+        const apr = await sp.web.lists.getByTitle(PromoRepository.LIST_NAME)
+            .items.getById(this.Entity.ItemId).select(
+                "Approvals"
+            ).get();
+
+        let aprobadores = "";
+        let encontrado: boolean = false;
+
+        if (apr.Approvals && apr.Approvals != "" && apr.Approvals != undefined && apr.Approvals != null) {
+            apr.Approvals.split("|").map((data) => {
+                if (Number(data.split("-")[0]) == user.ItemId && !encontrado) {
+                    console.log("Primer IF");
+                    if (data.replace("Pendiente", "Aprobar") !== data) {
+                        console.log("Segundo IF");
+                        aprobadores = concat(aprobadores + data.replace("Pendiente", "Aprobar") + "|").toString();
+                        encontrado = true;
+                    }
+                    else {
+                        data != null || data != "" || data ? aprobadores = concat(aprobadores + data + "|").toString() : null;
+                        console.log("Primer else");
+                    }
+                }
+                else {
+                    data != null || data != "" || data ? aprobadores = concat(aprobadores + data + "|").toString() : null;
+                    console.log("Segundo else");
+                }
+            });
+        }
+
+        this.Entity.Approvals = aprobadores;
+
         await SecurityHelper.SetPromoPermissions(this.Entity.ItemId, readerIDs, this.GetCurrentStage().GetPendingUserIDs());
-        await PromoRepository.SaveOrUpdate(this.Entity, 1);
+        await PromoRepository.SaveOrUpdate(this.Entity, 1).then(async () => {
+            const users = await this.GetCurrentStage().GetPendingUsers();
+
+            await Promise.all(users.map(async (usr) => {
+                await NotificacionsManager.SendTaskAssignedNotification(this.Entity, usr.Email, null, usr.Value);
+            }));
+        });
         await WorkflowLogRepository.Save(this.Entity.ItemId, this.Entity.PromoID, "Aprobar", comments, this.Entity);
 
         return NotificacionsManager.SendTaskApprovedNotification(this.Entity, user.Value, kam.Email);
@@ -116,6 +135,16 @@ export class ApprovalState extends PromoState {
     public async Reject(comments: string): Promise<void> {
         const stage = this.GetCurrentStage();
         const user = await SecurityHelper.GetCurrentUser();
+        const approvers = await ApproversRepository.GetInstance()
+
+        let ids: number[] = [approvers.Phase0Coordinator1.ItemId];
+        if (ids.indexOf(approvers.Phase0Coordinator2.ItemId) == -1)
+            ids.push(approvers.Phase0Coordinator2.ItemId);
+        if (ids.indexOf(approvers.Phase0Coordinator3.ItemId) == -1)
+            ids.push(approvers.Phase0Coordinator3.ItemId);
+        this.Entity.WorkflowStages = [new PromoWorkflowState(ids)];
+
+        this.Entity.TipoFlujo = undefined;
 
         this.Entity.ChangeState(PromoStatus.Rejected);
 
@@ -139,29 +168,47 @@ export class ApprovalState extends PromoState {
     }
 
     public async FlowAsign(entity: Promo, comments: string, flowType: FlowType): Promise<void> {
-        const stage = this.GetCurrentStage();
         const user = await SecurityHelper.GetCurrentUser();
         const kam = await SecurityHelper.GetUserById(entity.Client.KeyAccountManager.ItemId);
 
-        await this.InitializeWorkflowState(entity);
+        let aprobadores: string = "";
+        const approvers = await ApproversRepository.GetInstance();
+        const kamUser = entity.Client.Channel.HeadOfChannel;
+        const teamLeader = entity.Client.teamLeader;
 
-        stage.AddToCompletBy(user.ItemId);
-
-        if (stage.IsComplete()) {
-            if (entity.CurrentStageNumber == entity.WorkflowStages.length) {
-                const to = kam.Email;
-
-                NotificacionsManager.SendWorkflowApprovedNotification(entity, to);
+        if (flowType.ItemId == 1)
+            aprobadores = concat(approvers.Phase1Approver1.ItemId + "-" + approvers.Phase1Approver1.Value + ": " + "Pendiente|").toString();
+        else if (flowType.ItemId == 2) {
+            let ids: number[] = [teamLeader.ItemId];
+            aprobadores = concat(teamLeader.ItemId + "-" + teamLeader.Value + ": " + "Pendiente|").toString();
+            if (ids.indexOf(kamUser.ItemId) == -1) {
+                aprobadores = concat(aprobadores + " " + kamUser.ItemId + "-" + kamUser.Value + ": " + "Pendiente|").toString();
+                ids.push(kamUser.ItemId);
             }
-            else {
-                entity.CurrentStageNumber++;
-                const users = await this.GetCurrentStage().GetPendingUsers();
-
-                await Promise.all(users.map(async (usr) => {
-                    await NotificacionsManager.SendTaskAssignedNotification(entity, usr.Email, null, usr.Value);
-                }));
-            }
+            if (ids.indexOf(approvers.Phase2Approver1.ItemId) == -1)
+                aprobadores = concat(aprobadores + " " + approvers.Phase2Approver1.ItemId + "-" + approvers.Phase2Approver1.Value + ": " + "Pendiente|").toString();
         }
+        else if (flowType.ItemId == 3) {
+            let ids: number[] = [teamLeader.ItemId];
+            aprobadores = concat(teamLeader.ItemId + "-" + teamLeader.Value + ": " + "Pendiente|").toString();
+            if (ids.indexOf(kamUser.ItemId) == -1) {
+                aprobadores = concat(aprobadores + " " + kamUser.ItemId + "-" + kamUser.Value + ": " + "Pendiente|").toString()
+                ids.push(kamUser.ItemId);
+            }
+            if (ids.indexOf(approvers.Phase2Approver1.ItemId) == -1) {
+                aprobadores = concat(aprobadores + " " + approvers.Phase2Approver1.ItemId + "-" + approvers.Phase2Approver1.Value + ": " + "Pendiente|").toString()
+                ids.push(approvers.Phase2Approver1.ItemId);
+            }
+            if (ids.indexOf(approvers.Phase3Approver1.ItemId) == -1) {
+                aprobadores = concat(aprobadores + " " + approvers.Phase3Approver1.ItemId + "-" + approvers.Phase3Approver1.Value + ": " + "Pendiente|").toString()
+                ids.push(approvers.Phase3Approver1.ItemId);
+            }
+            if (ids.indexOf(approvers.Phase3Approver2.ItemId) == -1)
+                aprobadores = concat(aprobadores + " " + approvers.Phase3Approver2.ItemId + "-" + approvers.Phase3Approver2.Value + ": " + "Pendiente|").toString()
+        }
+
+        entity.Approvals = aprobadores;
+        await this.InitializeWorkflowState(entity);
 
         let readerIDs = [entity.Client.KeyAccountManager.ItemId];
 
@@ -171,7 +218,13 @@ export class ApprovalState extends PromoState {
         entity.TipoFlujo = flowType;
         let mensaje = "Asignado" + "-" + flowType.Name as string;
         await SecurityHelper.SetPromoPermissions(entity.ItemId, readerIDs, this.GetCurrentStage().GetPendingUserIDs());
-        await PromoRepository.SaveOrUpdate(entity, 1);
+        await PromoRepository.SaveOrUpdate(entity, 1).then(async () => {
+            const users = await this.GetCurrentStage().GetPendingUsers();
+
+            await Promise.all(users.map(async (usr) => {
+                await NotificacionsManager.SendTaskAssignedNotification(entity, usr.Email, null, usr.Value);
+            }));
+        });
         await WorkflowLogRepository.Save(entity.ItemId, entity.PromoID, mensaje, comments, entity);
 
         return NotificacionsManager.SendTaskApprovedNotification(entity, user.Value, kam.Email);

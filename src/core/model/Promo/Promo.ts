@@ -25,7 +25,6 @@ export class Promo extends Entity {
     public Evidence: PromoEvidence[] = [];
     protected _state: PromoState;
     public Approvals: string = "";
-    //public TipoFlujo: LookupValue;
     public TipoFlujo: FlowType;
 
     constructor(configuration: Configuration) {
@@ -106,7 +105,7 @@ export class Promo extends Entity {
     }
 
     public FlowAsign(entity: Promo, comments: string, flowType: FlowType): Promise<void> {
-        return this._state.FlowAsign(entity ,comments, flowType);
+        return this._state.FlowAsign(entity, comments, flowType);
     }
 
     public GetBaseGMSum(category: CategoryType) {

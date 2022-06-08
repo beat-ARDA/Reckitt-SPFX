@@ -1,5 +1,5 @@
 import { IItemAddResult, sp } from "@pnp/sp/presets/all";
-import { concat } from "lodash";
+import { concat, isNumber } from "lodash";
 import { ClientRepository, ConfigurationRepository } from ".";
 import { Client, WorkflowLog, FlowType } from "../model/Common";
 import { PromoItem, PromoWorkflowState } from "../model/Promo";
@@ -40,32 +40,6 @@ export class PromoRepository {
 
   public static async SaveOrUpdate(entity: Promo, sU: number = 0): Promise<void> {
     const pendingApprovers = entity.GetPendingApproverIDs();
-    let aprobadores: any;
-
-    if (sU == 0) {
-      const approvers = await ApproversRepository.GetInstance();
-      const kamUserId = entity.Client.Channel.HeadOfChannel.ItemId;
-      const approverUserId = approvers.Phase1Approver1.ItemId;
-      const kamUser = entity.Client.Channel.HeadOfChannel.Value;
-      const approverUser = approvers.Phase1Approver1.Value;
-
-      if (kamUser != approverUser)
-        aprobadores = concat(kamUserId + "-" + kamUser + ": " + "Pendiente| " + approverUserId + "-" + approverUser + ": " + "Pendiente|").toString();
-      else
-        aprobadores = concat(kamUserId + "-" + kamUser + ": " + "Pendiente|").toString();
-
-      if (entity.GetTotalEstimatedInvestment() > entity.Config.ApprovalAmountLimit) {
-        const approver1Id = approvers.Phase3Approver1.ItemId;
-        const approver2Id = approvers.Phase3Approver2.ItemId;
-        const approver1 = approvers.Phase3Approver1.Value;
-        const approver2 = approvers.Phase3Approver2.Value;
-
-        if (approver1 != approver2)
-          aprobadores = concat(aprobadores + " " + approver1Id + "-" + approver1 + ": Pendiente| " + approver2Id + "-" + approver2 + ": Pendiente|").toString();
-        else
-          aprobadores = concat(aprobadores + " " + approver1Id + "-" + approver1 + ": Pendiente| ").toString();
-      }
-    }
 
     const data = {
       PromoName: entity.Name,
@@ -80,7 +54,7 @@ export class PromoRepository {
       SYS_CurrentStageNumber: entity.CurrentStageNumber,
       PendingApproversId: { results: pendingApprovers ? entity.GetPendingApproverIDs() : [] },
       TotalEstimatedInvestment: entity.GetTotalEstimatedInvestment(),
-      Approvals: aprobadores,
+      Approvals: entity.Approvals,
       TipoFlujoId: entity.TipoFlujo ? entity.TipoFlujo.ItemId : null
     };
 
@@ -106,7 +80,6 @@ export class PromoRepository {
     return new Promo(configuration);
   }
   private static async BuildEntity(item: any, items: PromoItem[], client: Client, workflowLog: WorkflowLog[], evidence: PromoEvidence[], flowtype: FlowType): Promise<Promo> {
-
     let entity = await PromoRepository.GetNewPromo();
 
     entity.ItemId = item.ID;
@@ -117,7 +90,6 @@ export class PromoRepository {
     entity.CurrentStageNumber = item.SYS_CurrentStageNumber;
     entity.WorkflowLog = workflowLog;
     entity.Evidence = evidence;
-    //entity.TipoFlujo = item.TipoFlujo.Title == undefined ? null : item.TipoFlujo.Title;
     entity.TipoFlujo = flowtype;
 
     items.map((promoItem) => {
@@ -127,16 +99,34 @@ export class PromoRepository {
     entity.Items = items;
 
     if (item.SYS_WorkflowStages) {
-      const data: any[] = JSON.parse(item.SYS_WorkflowStages);
+
       entity.WorkflowStages = [];
 
-      data.map((stage) => {
-        entity.WorkflowStages.push(new PromoWorkflowState(stage.ApproverIDs, stage.CompletedBy));
-      });
+      const lengthDataIDS: number = item.SYS_WorkflowStages.split('[')[2].split(']')[0].split(',').length;
+      const lenghtDataComplete: number = item.SYS_WorkflowStages.split('[')[3].split(']')[0].split(',').length;
+      const datosComplete: string[] = item.SYS_WorkflowStages.split('[')[3].split(']')[0].split(',');
+
+      let dataIDS: number[] = [];
+      let dataComplete: number[] = [];
+
+      for (let i = 0; i < lengthDataIDS; i++) {
+        let numero: number = parseInt(item.SYS_WorkflowStages.split('[')[2].split(']')[0].split(',')[i], 10);
+        if (dataIDS.indexOf(numero) == -1)
+          dataIDS.push(numero);
+      }
+
+      if (datosComplete.length >= 1 && datosComplete[0] != "")
+        for (let i = 0; i < lenghtDataComplete; i++) {
+          let numero: number = parseInt(item.SYS_WorkflowStages.split('[')[3].split(']')[0].split(',')[i], 10);
+          if (dataComplete.indexOf(numero) == -1)
+            dataComplete.push(numero);
+        }
+
+      const workFlowState: PromoWorkflowState = new PromoWorkflowState(dataIDS, dataComplete);
+      entity.WorkflowStages = [workFlowState];
     }
 
     entity.ChangeState(parseInt(item.StatusId));
-
     return entity;
   }
 }
